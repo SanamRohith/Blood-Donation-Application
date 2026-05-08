@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile - Blood_Info_Services</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="dash-nav">
+    <div class="brand">Blood_Info_Services</div>
+    <nav class="dash-links">
+      <a class="nav-item" href="/dashboard">Dashboard</a>
+      <a class="nav-item is-active" href="/profile">Profile</a>
+      <a class="nav-item" href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <main class="dash-container">
+    <section class="card auth-card">
+      <div class="card-head">
+        <h3>Your Profile</h3>
+      </div>
+
+      {% if errors %}
+        <div class="alert alert-error">
+          {% for e in errors %}<div>{{ e }}</div>{% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" action="/profile" class="profile-form">
+        <div class="avatar-row">
+          <div class="avatar">{{ profile.name[:1]|upper }}</div>
+          <div>
+            <div class="muted">User</div>
+            <div><b>{{ profile.name }}</b></div>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Full Name</span>
+          <input name="name" type="text" value="{{ profile.name }}" required />
+        </label>
+
+        <label class="field">
+          <span>Blood Group</span>
+          <input name="blood_group" type="text" value="{{ profile.blood_group }}" required />
+        </label>
+
+        <label class="field">
+          <span>City</span>
+          <input name="city" type="text" value="{{ profile.city }}" required />
+        </label>
+
+        <label class="field">
+          <span>Pincode</span>
+          <input name="pincode" type="text" value="{{ profile.pincode }}" required />
+        </label>
+
+        <label class="field">
+          <span>Availability Status</span>
+          <select name="available">
+            <option value="true" {% if profile.available %}selected{% endif %}>Available</option>
+            <option value="false" {% if not profile.available %}selected{% endif %}>Not Available</option>
+          </select>
+        </label>
+
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
+

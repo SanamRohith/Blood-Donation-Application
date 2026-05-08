@@ -1,0 +1,117 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Private Chat - BloodLink
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+</head>
+
+<body>
+
+  <!-- HEADER -->
+
+  <header class="chat-header">
+
+    <div class="chat-logo-wrap">
+
+      <div class="chat-logo">
+        Blood<span>Link</span>
+      </div>
+
+      <div class="chat-caption">
+        Connecting Donors & Saving Lives
+      </div>
+
+    </div>
+
+    <div class="chat-header-actions">
+
+      <button
+        class="end-chat-btn"
+        type="button"
+        onclick="window.location.href='/dashboard'"
+      >
+        End Chat
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- CHAT AREA -->
+
+  <main class="chat-wrap">
+
+    <!-- CHAT MESSAGES -->
+
+    <div
+      class="chat-bubbles"
+      id="chat-bubbles"
+    >
+    </div>
+
+    <!-- MESSAGE INPUT -->
+
+    <div class="chat-composer">
+
+      <input
+        id="message-input"
+        type="text"
+        placeholder="Type your message..."
+        autocomplete="off"
+      />
+
+      <button
+        class="send-btn"
+        id="send-btn"
+        type="button"
+      >
+        Send
+      </button>
+
+    </div>
+
+  </main>
+
+  <!-- CHAT DATA -->
+
+  <script>
+
+    window.BLOOD_CHAT = {
+
+      chatId:
+        {{ chat_id | tojson }},
+
+      currentUser:
+        {{ session["user_phone"] | tojson }}
+
+    };
+
+  </script>
+
+  <!-- SCRIPT -->
+
+  <script
+    src="{{ url_for('static', filename='script.js') }}"
+  >
+  </script>
+
+</body>
+
+</html>

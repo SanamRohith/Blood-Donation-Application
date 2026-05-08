@@ -1,0 +1,134 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Admin Requests
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <header class="admin-navbar">
+
+    <div class="admin-logo-wrap">
+
+      <div class="admin-logo">
+        Blood<span>Link</span>
+      </div>
+
+      <div class="admin-caption">
+        Linking Blood to Life
+      </div>
+
+    </div>
+
+    <div class="admin-title">
+      Requests
+    </div>
+
+    <div class="admin-nav-right">
+
+      <button
+        class="admin-logout-btn"
+        onclick="window.location.href='/admin'"
+      >
+        Back
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- REQUEST TABLE -->
+
+  <div class="admin-table-wrap">
+
+    <table class="admin-table">
+
+      <thead>
+
+        <tr>
+
+          <th>Name</th>
+
+          <th>Phone</th>
+
+          <th>Blood Group</th>
+
+          <th>City</th>
+
+          <th>Pincode</th>
+
+          <th>Status</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {% for req in requests_data %}
+
+        <tr>
+
+          <td>
+            {{ req.name }}
+          </td>
+
+          <td>
+            {{ req.phone }}
+          </td>
+
+          <td>
+            {{ req.blood_group }}
+          </td>
+
+          <td>
+            {{ req.city }}
+          </td>
+
+          <td>
+            {{ req.pincode }}
+          </td>
+
+          <td>
+
+            <span class="donor-active-badge">
+
+              Pending
+
+            </span>
+
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</body>
+
+</html>

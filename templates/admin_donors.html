@@ -1,0 +1,202 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Admin Donors
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <header class="admin-navbar">
+
+    <div class="admin-logo-wrap">
+
+      <div class="admin-logo">
+        Blood<span>Link</span>
+      </div>
+
+      <div class="admin-caption">
+        Linking Blood to Life
+      </div>
+
+    </div>
+
+    <div class="admin-title">
+      Donors
+    </div>
+
+    <div class="admin-nav-right">
+
+      <button
+        class="admin-logout-btn"
+        onclick="window.location.href='/admin'"
+      >
+        Back
+      </button>
+
+    </div>
+
+  </header>
+  <div class="admin-users-top">
+
+  <button
+    class="add-user-btn"
+    onclick="
+      window.location.href=
+      '/admin/export_donors_pdf'
+    "
+  >
+    Export PDF
+  </button>
+
+</div>
+
+<!-- DONOR STATS -->
+
+<div class="donor-stats-grid">
+
+  <div class="donor-stat-card">
+
+    <h2>
+      {{ total_donors }}
+    </h2>
+
+    <p>
+      Total Donors
+    </p>
+
+  </div>
+
+
+  <div class="donor-stat-card">
+
+    <h2>
+      {{ o_positive }}
+    </h2>
+
+    <p>
+      O+ Donors
+    </p>
+
+  </div>
+
+
+  <div class="donor-stat-card">
+
+    <h2>
+      {{ a_positive }}
+    </h2>
+
+    <p>
+      A+ Donors
+    </p>
+
+  </div>
+
+
+  <div class="donor-stat-card">
+
+    <h2>
+      {{ b_positive }}
+    </h2>
+
+    <p>
+      B+ Donors
+    </p>
+
+  </div>
+
+</div>
+
+  <!-- DONORS TABLE -->
+
+  <div class="admin-table-wrap">
+
+    <table class="admin-table">
+
+      <thead>
+
+        <tr>
+
+          <th>Name</th>
+
+          <th>Phone</th>
+
+          <th>Blood Group</th>
+
+          <th>City</th>
+
+          <th>Pincode</th>
+
+          <th>Status</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {% for donor in donors %}
+
+        <tr>
+
+          <td>
+            {{ donor.name }}
+          </td>
+
+          <td>
+            {{ donor.phone }}
+          </td>
+
+          <td>
+            {{ donor.blood_group }}
+          </td>
+
+          <td>
+            {{ donor.city }}
+          </td>
+
+          <td>
+            {{ donor.pincode }}
+          </td>
+
+          <td>
+
+            <span class="donor-active-badge">
+              Available
+            </span>
+
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</body>
+
+</html>

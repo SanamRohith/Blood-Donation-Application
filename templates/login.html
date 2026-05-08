@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Login - BloodLink
+  </title>
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="{{ url_for('static', filename='favicon.png') }}"
+  />
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+</head>
+
+<body>
+
+  <div class="auth-wrap">
+
+    <!-- TOP BRANDING -->
+
+    <header class="auth-head">
+
+      <div class="logo-container">
+
+        <h1 class="logo">
+          Blood<span>Link</span>
+        </h1>
+
+        <p class="tagline">
+          Linking Blood to Life
+        </p>
+
+      </div>
+
+    </header>
+
+
+    <!-- LOGIN CARD -->
+
+    <form
+      class="auth-card"
+      method="post"
+      action="/login"
+    >
+
+      <!-- ERROR MESSAGE -->
+
+      {% if error %}
+
+      <div class="auth-error">
+        {{ error }}
+      </div>
+
+      {% endif %}
+
+      <h2>
+        Welcome Back
+      </h2>
+
+      <p
+        style="
+          color:#9ca3af;
+          margin-top:-10px;
+          margin-bottom:28px;
+        "
+      >
+        Login to continue helping lives ❤️
+      </p>
+
+
+      <!-- PHONE -->
+
+      <label class="field">
+
+        <span>
+          Phone Number
+        </span>
+
+        <input
+          type="text"
+          name="phone"
+          placeholder="Enter your phone number"
+          required
+        />
+
+      </label>
+
+
+      <!-- PASSWORD -->
+
+      <label class="field">
+
+        <span>
+          Password
+        </span>
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+
+      </label>
+
+
+      <!-- LOGIN BUTTON -->
+
+      <button
+        class="btn btn-primary btn-lg"
+        type="submit"
+        style="
+          width:100%;
+          margin-top:10px;
+        "
+      >
+        Login
+      </button>
+
+
+      <!-- LINKS -->
+
+      <div class="auth-links">
+
+        <a
+          href="/forgot-password"
+        >
+          Forgot Password?
+        </a>
+
+        <span class="dot">
+          •
+        </span>
+
+        <a
+          href="/register"
+        >
+          Create account
+        </a>
+
+      </div>
+
+
+      <div
+        style="
+          text-align:center;
+          margin-top:20px;
+        "
+      >
+
+        <a
+          class="btn btn-link"
+          href="/"
+        >
+          Back to Home
+        </a>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Dashboard - BloodLink
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+</head>
+
+<body>
+
+  <header class="dash-nav">
+
+    <div class="logo-container">
+
+      <h1 class="logo">
+        Blood<span>Link</span>
+      </h1>
+
+      <p class="tagline">
+        Linking Blood to Life
+      </p>
+
+    </div>
+
+    <nav class="dash-links">
+
+      <a
+        class="nav-item is-active"
+        href="/dashboard"
+      >
+        Dashboard
+      </a>
+
+      <a
+        class="nav-item"
+        href="/profile"
+      >
+        Profile
+      </a>
+
+      <a
+        class="nav-item"
+        href="/requests"
+      >
+        Requests
+      </a>
+
+      <a
+        class="nav-item"
+        href="/chats"
+      >
+        Chat 🔔
+      </a>
+
+      <a
+        class="nav-item"
+        href="/logout"
+      >
+        Logout
+      </a>
+
+    </nav>
+
+  </header>
+
+  <main class="dash-container">
+
+    <!-- HERO -->
+
+    <section class="dash-hero">
+
+      <div>
+
+        <h2>
+          Welcome back, {{ user.name }} 👋
+        </h2>
+
+        <p class="muted">
+          Find nearby blood donors and save lives faster with secure real-time communication.
+        </p>
+
+      </div>
+
+      <div class="availability-toggle">
+
+        <span class="toggle-label">
+          Available for Donation
+        </span>
+
+        <label class="switch">
+
+       <input
+  id="availability-toggle"
+  type="checkbox"
+  {% if user.available %}checked{% endif %}
+>
+
+          <span class="slider"></span>
+
+        </label>
+
+      </div>
+
+    </section>
+
+
+    <!-- SEARCH SECTION -->
+
+    <section class="card search-card">
+
+      <div class="card-head">
+
+        <div>
+
+          <h3 class="search-title">
+            🩸 Find Blood Heroes
+          </h3>
+
+          <p class="search-subtitle">
+            Search verified donors by blood group, city, or pincode.
+          </p>
+
+        </div>
+
+      </div>
+
+      <!-- SEARCH FILTERS -->
+
+      <div class="filters">
+
+        <label class="field">
+
+          <span>
+            Blood Group
+          </span>
+
+          <input
+            id="filter-blood"
+            type="text"
+            placeholder="e.g. O+, A-"
+          />
+
+        </label>
+
+
+        <label class="field">
+
+          <span>
+            City
+          </span>
+
+          <input
+            id="filter-city"
+            type="text"
+            placeholder="Partial city name"
+          />
+
+        </label>
+
+
+        <label class="field">
+
+          <span>
+            Pincode
+          </span>
+
+          <input
+            id="filter-pincode"
+            type="text"
+            placeholder="e.g. 560001"
+          />
+
+        </label>
+
+
+        <button
+          class="btn btn-primary search-btn"
+          id="btn-search"
+          type="button"
+        >
+          🔍 Search
+        </button>
+
+      </div>
+
+      <!-- QUICK BLOOD GROUPS -->
+
+      <div class="blood-chips">
+
+        <button class="chip">A+</button>
+        <button class="chip">B+</button>
+        <button class="chip">O+</button>
+        <button class="chip">AB+</button>
+        <button class="chip">A-</button>
+        <button class="chip">O-</button>
+
+      </div>
+
+      <!-- SEARCH RESULTS -->
+
+      <div
+        class="grid-donors"
+        id="search-results"
+      ></div>
+
+      <div
+        class="muted"
+        id="search-empty"
+        style="display:none; margin-top:12px;"
+      >
+        No donors found.
+      </div>
+
+    </section>
+
+
+    <!-- DASHBOARD CARDS -->
+
+    <div class="dashboard-cards">
+
+      <!-- RECENT LIFE SAVERS -->
+
+      <section class="card">
+
+        <div class="card-head">
+
+          <h3>
+            Recent Life Savers
+          </h3>
+
+        </div>
+
+        <div class="empty-state" id="recent-donors">
+          No recent donor activity.
+        </div>
+
+      </section>
+
+
+      <!-- AVAILABLE HEROES -->
+
+      <section class="card">
+
+        <div class="card-head">
+
+          <h3>
+            Available Heroes
+          </h3>
+
+        </div>
+
+        <div class="empty-state" id="available-donors">
+          No available heroes yet.
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    window.BLOOD_APP = {
+
+      userName: {{ user.name | tojson }}
+
+    };
+
+  </script>
+
+  <script
+    src="{{ url_for('static', filename='script.js') }}"
+  ></script>
+
+</body>
+</html>

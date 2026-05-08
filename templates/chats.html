@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Chats - BloodLink
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+
+      font-family:'Poppins',sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(255,0,60,.18),
+          transparent 30%
+        ),
+        #020817;
+
+      color:white;
+
+      min-height:100vh;
+    }
+
+    .dash-nav{
+
+      display:flex;
+
+      justify-content:space-between;
+
+      align-items:center;
+
+      padding:22px 40px;
+
+      border-bottom:
+        1px solid rgba(255,255,255,.08);
+
+      background:
+        rgba(2,6,23,.9);
+
+      backdrop-filter:blur(12px);
+    }
+
+    .brand{
+
+      font-size:32px;
+
+      font-weight:800;
+
+      color:white;
+    }
+
+    .brand span{
+      color:#ef4444;
+    }
+
+    .dash-links{
+
+      display:flex;
+
+      gap:16px;
+    }
+
+    .nav-item{
+
+      text-decoration:none;
+
+      color:#9ca3af;
+
+      padding:12px 18px;
+
+      border-radius:16px;
+
+      transition:.25s;
+    }
+
+    .nav-item:hover{
+
+      color:white;
+
+      background:
+        rgba(255,255,255,.06);
+    }
+
+    .is-active{
+
+      color:white;
+
+      border:
+        1px solid rgba(239,68,68,.4);
+
+      background:
+        rgba(239,68,68,.08);
+    }
+
+    .dash-container{
+
+      width:min(1100px,92%);
+
+      margin:40px auto;
+    }
+
+    .card{
+
+      background:
+        rgba(15,23,42,.78);
+
+      border:
+        1px solid rgba(255,255,255,.08);
+
+      border-radius:28px;
+
+      padding:28px;
+
+      backdrop-filter:blur(12px);
+
+      box-shadow:
+        0 10px 30px rgba(0,0,0,.35);
+    }
+
+    .card-head{
+
+      margin-bottom:24px;
+    }
+
+    .card-head h2{
+
+      font-size:36px;
+
+      font-weight:800;
+    }
+
+    .muted{
+
+      color:#9ca3af;
+
+      font-size:16px;
+    }
+
+    .chat-card{
+
+      background:
+        rgba(2,6,23,.9);
+
+      border:
+        1px solid rgba(255,255,255,.06);
+
+      border-radius:24px;
+
+      padding:22px;
+
+      margin-top:20px;
+
+      transition:.25s;
+    }
+
+    .chat-card:hover{
+
+      transform:translateY(-3px);
+
+      border-color:#ef4444;
+    }
+
+    .chat-top{
+
+      display:flex;
+
+      justify-content:space-between;
+
+      align-items:center;
+    }
+
+    .chat-name{
+
+      font-size:24px;
+
+      font-weight:700;
+
+      color:white;
+    }
+
+    .chat-message{
+
+      color:#9ca3af;
+
+      margin-top:12px;
+
+      margin-bottom:18px;
+
+      line-height:1.5;
+    }
+
+    .open-chat-btn{
+
+      border:none;
+
+      padding:12px 20px;
+
+      border-radius:16px;
+
+      cursor:pointer;
+
+      font-size:15px;
+
+      font-weight:700;
+
+      color:white;
+
+      background:
+        linear-gradient(
+          135deg,
+          #ff4d4d,
+          #dc2626
+        );
+
+      box-shadow:
+        0 10px 30px rgba(239,68,68,.25);
+
+      transition:.25s;
+    }
+
+    .open-chat-btn:hover{
+
+      transform:translateY(-2px);
+
+      opacity:.95;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <header class="dash-nav">
+
+    <div class="brand">
+      Blood<span>Link</span>
+    </div>
+
+    <nav class="dash-links">
+
+      <a
+        class="nav-item"
+        href="/dashboard"
+      >
+        Dashboard
+      </a>
+
+      <a
+        class="nav-item"
+        href="/profile"
+      >
+        Profile
+      </a>
+
+      <a
+        class="nav-item"
+        href="/requests"
+      >
+        Requests
+      </a>
+
+      <a
+        class="nav-item is-active"
+        href="/chats"
+      >
+        Chat 🔔
+      </a>
+
+      <a
+        class="nav-item"
+        href="/logout"
+      >
+        Logout
+      </a>
+
+    </nav>
+
+  </header>
+
+  <main class="dash-container">
+
+    <section class="card">
+
+      <div class="card-head">
+
+        <h2>
+          My Chats
+        </h2>
+
+      </div>
+
+      <div id="my-chats-list">
+
+        <div class="muted">
+          Loading chats...
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+
+    async function loadChats() {
+
+      try {
+
+        const response = await fetch(
+          "/api/my_chats"
+        )
+
+        const data = await response.json()
+
+        const container = document.getElementById(
+          "my-chats-list"
+        )
+
+        if (
+          !data.chats ||
+          data.chats.length === 0
+        ) {
+
+          container.innerHTML = `
+            <div class="muted">
+              No chats available
+            </div>
+          `
+
+          return
+        }
+
+        container.innerHTML = ""
+
+        data.chats.forEach(chat => {
+
+          container.innerHTML += `
+
+            <div class="chat-card">
+
+              <div class="chat-top">
+
+                <div class="chat-name">
+                  ${chat.name}
+                </div>
+
+              </div>
+
+              <div class="chat-message">
+                ${chat.last_message}
+              </div>
+
+              <button
+                class="open-chat-btn"
+                onclick="openChat('${chat.chat_id}')"
+              >
+                Open Chat
+              </button>
+
+            </div>
+          `
+        })
+
+      }
+
+      catch (err) {
+
+        console.log(err)
+
+      }
+    }
+
+    function openChat(chatId) {
+
+      window.location.href =
+        "/chat/" + chatId
+    }
+
+    loadChats()
+
+  </script>
+
+</body>
+</html>
