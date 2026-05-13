@@ -19,202 +19,61 @@
         rel="stylesheet"
     >
 
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
-
-        body{
-            font-family:'Poppins',sans-serif;
-
-            background:
-                radial-gradient(
-                    circle at top left,
-                    rgba(255,0,60,.18),
-                    transparent 30%
-                ),
-                #020817;
-
-            color:#fff;
-
-            min-height:100vh;
-
-            padding:40px;
-        }
-
-        h1{
-            font-size:52px;
-            font-weight:800;
-            margin-bottom:30px;
-        }
-
-        .card{
-
-            background:
-                rgba(15,23,42,.78);
-
-            border:
-                1px solid rgba(255,255,255,.08);
-
-            border-radius:28px;
-
-            padding:28px;
-
-            margin-bottom:24px;
-
-            backdrop-filter:blur(12px);
-
-            box-shadow:
-                0 10px 30px rgba(0,0,0,.35);
-        }
-
-        input,
-        select{
-
-            width:100%;
-
-            background:#020617;
-
-            border:
-                1px solid rgba(255,255,255,.08);
-
-            color:#fff;
-
-            padding:16px;
-
-            margin-top:14px;
-
-            border-radius:16px;
-
-            font-size:16px;
-
-            outline:none;
-        }
-
-        input::placeholder{
-            color:#6b7280;
-        }
-
-        input:focus,
-        select:focus{
-
-            border-color:#ef4444;
-
-            box-shadow:
-                0 0 0 3px rgba(239,68,68,.15);
-        }
-
-        button{
-
-            margin-top:18px;
-
-            padding:14px 24px;
-
-            border:none;
-
-            border-radius:16px;
-
-            cursor:pointer;
-
-            font-size:16px;
-
-            font-weight:700;
-
-            color:white;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #ff4d4d,
-                    #dc2626
-                );
-
-            box-shadow:
-                0 10px 30px rgba(239,68,68,.35);
-
-            transition:.25s;
-        }
-
-        button:hover{
-            transform:translateY(-2px);
-        }
-
-        .status{
-
-            display:inline-block;
-
-            padding:7px 14px;
-
-            border-radius:999px;
-
-            font-size:14px;
-
-            font-weight:700;
-
-            margin-top:5px;
-        }
-
-        .pending{
-            background:#f59e0b;
-            color:#fff;
-        }
-
-        .resolved{
-            background:#22c55e;
-            color:#fff;
-        }
-
-        .expired{
-            background:#6b7280;
-            color:#fff;
-        }
-
-        .request-card h2{
-            font-size:30px;
-            margin-bottom:16px;
-        }
-
-        .request-card p{
-            margin-top:10px;
-            color:#d1d5db;
-            font-size:16px;
-        }
-
-        .request-card b{
-            color:#fff;
-        }
-
-    </style>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
 </head>
 
 <body>
 
-    <h1>
-        Emergency Blood Requests
-    </h1>
+    <div class="header">
+
+        <h1 data-translate="emergency_requests">
+            Emergency Blood Requests
+        </h1>
+
+        <div class="header-buttons">
+
+            <button
+                class="back-btn"
+                onclick="window.location.href='/request_history'"
+                data-translate="history"
+            >
+                History
+            </button>
+
+            <button
+                class="back-btn"
+                onclick="window.location.href='/dashboard'"
+                data-translate="home"
+            >
+                ← Home
+            </button>
+
+        </div>
+
+    </div>
 
     <div class="card">
-
-        <!-- PATIENT NAME -->
 
         <input
             type="text"
             id="patient_name"
             placeholder="Patient Name"
+            data-placeholder="patient_name"
             oninput="
                 this.value=this.value.replace(/[^a-zA-Z ]/g,'')
             "
         >
 
-        <!-- BLOOD GROUP -->
-
         <select id="blood_group">
 
-            <option value="">
+            <option
+                value=""
+                data-translate="select_blood_group"
+            >
                 Select Blood Group
             </option>
 
@@ -229,51 +88,48 @@
 
         </select>
 
-        <!-- UNITS -->
-
         <input
             type="number"
             id="units"
             placeholder="Units Required"
+            data-placeholder="units_required"
             min="1"
-            oninput="
-                this.value=this.value.replace(/[^0-9]/g,'')
-            "
         >
-
-        <!-- HOSPITAL -->
 
         <input
             type="text"
             id="hospital"
             placeholder="Hospital Name"
+            data-placeholder="hospital_name"
         >
-
-        <!-- CITY -->
 
         <input
             type="text"
             id="city"
             placeholder="City"
-            oninput="
-                this.value=this.value.replace(/[^a-zA-Z ]/g,'')
-            "
+            data-placeholder="city"
         >
 
-        <!-- PHONE -->
+        <input
+            type="text"
+            id="pincode"
+            placeholder="Pincode"
+            maxlength="6"
+        >
 
         <input
             type="tel"
             id="phone"
             placeholder="Contact Phone"
+            data-placeholder="contact_phone"
             maxlength="10"
-            pattern="[0-9]{10}"
-            oninput="
-                this.value=this.value.replace(/[^0-9]/g,'')
-            "
         >
 
-        <button onclick="createRequest()">
+        <button
+            class="btn btn-primary"
+            onclick="createRequest()"
+            data-translate="create_request"
+        >
             Create Request
         </button>
 
@@ -281,7 +137,11 @@
 
     <div id="requests"></div>
 
+<script src="{{ url_for('static', filename='translations.js') }}"></script>
+
 <script>
+
+applyTranslations();
 
 async function loadRequests(){
 
@@ -303,7 +163,7 @@ async function loadRequests(){
 
         container.innerHTML = `
             <div class="card">
-                <h2>No Requests Found</h2>
+                <h2>${t("no_requests")}</h2>
             </div>
         `;
 
@@ -330,8 +190,11 @@ async function loadRequests(){
         ){
 
             resolveButton = `
-                <button onclick="resolveRequest('${r.id}')">
-                    Mark as Resolved
+                <button
+                    class="btn btn-primary"
+                    onclick="resolveRequest('${r.id}')"
+                >
+                    ${t("resolve_request")}
                 </button>
             `;
         }
@@ -340,36 +203,41 @@ async function loadRequests(){
 
         <div class="card request-card">
 
-            <h2>${r.name}</h2>
+            <h2>${r.name || "Unknown"}</h2>
 
             <p>
-                <b>Blood Group:</b>
+                <b>${t("blood_group")}:</b>
                 ${r.blood_group}
             </p>
 
             <p>
-                <b>Units:</b>
+                <b>${t("units")}:</b>
                 ${r.units}
             </p>
 
             <p>
-                <b>Hospital:</b>
+                <b>${t("hospital")}:</b>
                 ${r.hospital}
             </p>
 
             <p>
-                <b>City:</b>
+                <b>${t("city")}:</b>
                 ${r.city}
             </p>
 
             <p>
-                <b>Phone:</b>
+                <b>Pincode:</b>
+                ${r.pincode || "-"}
+            </p>
+
+            <p>
+                <b>${t("phone")}:</b>
                 ${r.phone}
             </p>
 
             <p>
 
-                <b>Status:</b>
+                <b>${t("status")}:</b>
 
                 <span class="status ${statusClass}">
                     ${r.status}
@@ -378,13 +246,16 @@ async function loadRequests(){
             </p>
 
             <p>
-                <b>Created:</b>
+
+                <b>${t("created")}:</b>
+
                 ${
                     r.created_at
                     ? new Date(r.created_at)
                         .toLocaleString()
                     : "-"
                 }
+
             </p>
 
             ${resolveButton}
@@ -397,51 +268,178 @@ async function loadRequests(){
 
 async function createRequest(){
 
+    const patientName =
+        document.getElementById(
+            "patient_name"
+        ).value.trim();
+
+    const bloodGroup =
+        document.getElementById(
+            "blood_group"
+        ).value.trim();
+
+    const units =
+        document.getElementById(
+            "units"
+        ).value.trim();
+
+    const hospital =
+        document.getElementById(
+            "hospital"
+        ).value.trim();
+
+    const city =
+        document.getElementById(
+            "city"
+        ).value.trim();
+
+    const pincode =
+        document.getElementById(
+            "pincode"
+        ).value.trim();
+
+    const phone =
+        document.getElementById(
+            "phone"
+        ).value.trim();
+
+    if(
+        !patientName ||
+        !bloodGroup ||
+        !units ||
+        !hospital ||
+        !city ||
+        !pincode ||
+        !phone
+    ){
+
+        alert(
+            t("fill_all_fields")
+        );
+
+        return;
+    }
+
+    if(
+        !phone.match(/^[0-9]{10}$/)
+    ){
+
+        alert(
+            t("phone_validation")
+        );
+
+        return;
+    }
+
+    if(
+        !pincode.match(/^[0-9]{6}$/)
+    ){
+
+        alert(
+            "Enter valid pincode"
+        );
+
+        return;
+    }
+
     const payload = {
 
         name:
-            document.getElementById(
-                "patient_name"
-            ).value,
+            patientName,
 
         blood_group:
-            document.getElementById(
-                "blood_group"
-            ).value,
+            bloodGroup,
 
         units:
-            document.getElementById(
-                "units"
-            ).value,
+            units,
 
         hospital:
-            document.getElementById(
-                "hospital"
-            ).value,
+            hospital,
 
         city:
-            document.getElementById(
-                "city"
-            ).value,
+            city,
+
+        pincode:
+            pincode,
 
         phone:
-            document.getElementById(
-                "phone"
-            ).value
+            phone
     };
 
+    try{
+
+        const res = await fetch(
+            "/api/create_request",
+            {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:JSON.stringify(payload)
+            }
+        );
+
+        const data = await res.json();
+
+        if(data.success){
+
+            alert(
+                data.message ||
+                t("request_created")
+            );
+
+            location.reload();
+
+        }else{
+
+            alert(
+                data.message ||
+                t("failed")
+            );
+        }
+
+    }catch(err){
+
+        alert(
+            t("server_error")
+        );
+    }
+}
+
+async function resolveRequest(id){
+
+    const donorName = prompt(
+        t("enter_donor_name")
+    );
+
+    if(
+        !donorName ||
+        donorName.trim() === ""
+    ){
+        return;
+    }
+
     const res = await fetch(
-        "/api/create_request",
+        `/api/resolve_request/${id}`,
         {
 
-            method: "POST",
+            method:"POST",
 
-            headers: {
+            headers:{
                 "Content-Type":
                     "application/json"
             },
 
-            body: JSON.stringify(payload)
+            body:JSON.stringify({
+
+                resolved_by:
+                    donorName.trim()
+
+            })
         }
     );
 
@@ -449,30 +447,18 @@ async function createRequest(){
 
     if(data.success){
 
-        alert("Request Created");
+        alert(
+            t("resolved_success")
+        );
 
-        location.reload();
+        loadRequests();
 
     }else{
 
-        alert("Failed");
-    }
-}
-
-async function resolveRequest(id){
-
-    const res = await fetch(
-        `/api/resolve_request/${id}`,
-        {
-            method:"POST"
-        }
-    );
-
-    if(res.ok){
-
-        alert("Request Resolved");
-
-        loadRequests();
+        alert(
+            data.message ||
+            t("failed_resolve")
+        );
     }
 }
 

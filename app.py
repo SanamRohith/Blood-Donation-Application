@@ -1,12 +1,14 @@
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import bcrypt
 from flask import Flask, abort, jsonify, redirect, render_template, request, session, url_for
 from pymongo import DESCENDING, MongoClient
 from bson.objectid import ObjectId
 from io import BytesIO
+
+
 
 from flask import send_file
 
@@ -30,6 +32,7 @@ MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
 DB_NAME = os.environ.get("MONGO_DB", "blood_donor_db")
 
 client = MongoClient(MONGO_URI)
+
 db = client[DB_NAME]
 
 COL_USERS = "users"
@@ -61,6 +64,7 @@ def format_user_for_search(u: dict):
         "blood_group": u.get("blood_group"),
         "city": u.get("city"),
         "pincode": u.get("pincode"),
+        "phone": u.get("phone"),
         "available": bool(u.get("available")),
     }
 
@@ -148,6 +152,7 @@ def register():
         "city": city,
         "pincode": pincode,
         "available": available,
+        "available_updated_at": datetime.utcnow(),
         "created_at": utcnow_iso(),
     })
 
@@ -213,6 +218,23 @@ def login():
 
 
     session["user_phone"] = phone
+
+    if user.get("available"):
+
+        db[COL_USERS].update_one(
+
+            {
+                "phone": phone
+            },
+
+            {
+                "$set": {
+
+                    "available_updated_at":
+                        datetime.utcnow()
+                }
+            }
+        )
 
     return redirect(url_for("dashboard"))
 
@@ -322,7 +344,8 @@ def admin_add_user_page():
 
         "pincode": pincode,
 
-        "available": True
+        "available": True,
+        "available_updated_at": datetime.utcnow()
 
     })
 
@@ -563,15 +586,42 @@ def admin_requests():
 
     )
 
+    total_requests = db[COL_REQUESTS].count_documents({})
+
+    pending_requests = db[COL_REQUESTS].count_documents({
+
+        "status": "pending"
+
+    })
+
+    resolved_requests = db[COL_REQUESTS].count_documents({
+
+        "status": "resolved"
+
+    })
+
+    expired_requests = db[COL_REQUESTS].count_documents({
+
+        "status": "expired"
+
+    })
+
 
     return render_template(
 
         "admin_requests.html",
 
-        requests_data=requests_data
+        requests_data=requests_data,
+
+        total_requests=total_requests,
+
+        pending_requests=pending_requests,
+
+        resolved_requests=resolved_requests,
+
+        expired_requests=expired_requests
 
     )
-
 @app.route("/admin/chats")
 def admin_chats():
 
@@ -681,23 +731,92 @@ def dashboard():
 
     require_login()
 
-    user = get_user_by_phone(session["user_phone"])
-
-    if not user:
-        return redirect(url_for("login"))
-
-    return render_template(
-        "dashboard.html",
-        user={
-            "name": user.get("name"),
-            "blood_group": user.get("blood_group"),
-            "city": user.get("city"),
-            "pincode": user.get("pincode"),
-            "available": bool(user.get("available")),
-            "phone": user.get("phone"),
-        },
+    user = get_user_by_phone(
+        session["user_phone"]
     )
 
+    if not user:
+
+        return redirect(
+            url_for("login")
+        )
+
+    if user.get("available"):
+
+        updated_at = user.get(
+            "available_updated_at"
+        )
+
+        if updated_at:
+
+            updated_at = updated_at.replace(
+                tzinfo=None
+            )
+
+            expiry_time = (
+
+                updated_at +
+
+                timedelta(days=3)
+
+            )
+
+            if datetime.now() > expiry_time:
+
+                db[COL_USERS].update_one(
+
+                    {
+                        "_id": user["_id"]
+                    },
+
+                    {
+                        "$set": {
+                            "available": False
+                        }
+                    }
+                )
+
+                user["available"] = False
+
+                user["availability_expired"] = True
+
+    return render_template(
+
+    "dashboard.html",
+
+    user={
+
+        "name":
+            user.get("name"),
+
+        "blood_group":
+            user.get("blood_group"),
+
+        "city":
+            user.get("city"),
+
+        "pincode":
+            user.get("pincode"),
+
+        "available":
+            bool(user.get("available")),
+
+        "phone":
+            user.get("phone"),
+
+        "latitude":
+            user.get("latitude"),
+
+        "longitude":
+            user.get("longitude"),
+
+        "availability_expired":
+            user.get(
+                "availability_expired",
+                False
+            ),
+    },
+)
 
 # =========================
 # PROFILE
@@ -718,38 +837,107 @@ def profile():
         return render_template(
             "profile.html",
             profile={
-                "name": user.get("name"),
-                "blood_group": user.get("blood_group"),
-                "city": user.get("city"),
-                "pincode": user.get("pincode"),
-                "available": bool(user.get("available")),
+
+                "name":
+                    user.get("name"),
+
+                "blood_group":
+                    user.get("blood_group"),
+
+                "city":
+                    user.get("city"),
+
+                "pincode":
+                    user.get("pincode"),
+
+                "available":
+                    bool(user.get("available")),
+
+                "latitude":
+                    user.get("latitude"),
+
+                "longitude":
+                    user.get("longitude"),
             },
         )
 
     data = request.form
 
-    name = (data.get("name") or "").strip()
-    blood_group = (data.get("blood_group") or "").strip().upper()
-    city = (data.get("city") or "").strip()
-    pincode = (data.get("pincode") or "").strip()
-    available_raw = (data.get("available") or "").strip().lower()
+    name = (
+        data.get("name") or ""
+    ).strip()
 
-    available = available_raw in ("1", "true", "yes", "on")
+    blood_group = (
+        data.get("blood_group") or ""
+    ).strip().upper()
+
+    city = (
+        data.get("city") or ""
+    ).strip()
+
+    pincode = (
+        data.get("pincode") or ""
+    ).strip()
+
+    latitude = (
+        data.get("latitude") or ""
+    ).strip()
+
+    longitude = (
+        data.get("longitude") or ""
+    ).strip()
+
+    available_raw = (
+        data.get("available") or ""
+    ).strip().lower()
+
+    available = available_raw in (
+        "1",
+        "true",
+        "yes",
+        "on"
+    )
+
+    update_data = {
+
+        "name":
+            name,
+
+        "blood_group":
+            blood_group,
+
+        "city":
+            city,
+
+        "pincode":
+            pincode,
+
+        "available":
+            available,
+    }
+
+    if latitude and longitude:
+
+        update_data["latitude"] = float(latitude)
+
+        update_data["longitude"] = float(longitude)
 
     db[COL_USERS].update_one(
-        {"phone": session["user_phone"]},
+
         {
-            "$set": {
-                "name": name,
-                "blood_group": blood_group,
-                "city": city,
-                "pincode": pincode,
-                "available": available,
-            }
+            "phone":
+                session["user_phone"]
+        },
+
+        {
+            "$set":
+                update_data
         },
     )
 
-    return redirect(url_for("profile"))
+    return redirect(
+        url_for("profile")
+    )
 
 
 # =========================
@@ -782,35 +970,66 @@ def api_search_donors():
 
     require_login()
 
-    blood_group = (request.args.get("blood_group") or "").strip().upper()
-    city = (request.args.get("city") or "").strip()
-    pincode = (request.args.get("pincode") or "").strip()
+    blood_group = (
+        request.args.get("blood_group")
+        or ""
+    ).strip().upper()
 
-    q = {
-        "phone": {"$ne": session["user_phone"]},
-        "available": True
+    city = (
+        request.args.get("city")
+        or ""
+    ).strip()
+
+    pincode = (
+        request.args.get("pincode")
+        or ""
+    ).strip()
+
+    query = {
+
+        "phone": {
+            "$ne":
+                session["user_phone"]
+        },
+
+        "available":
+            True
     }
 
     if blood_group:
-        q["blood_group"] = blood_group
+
+        query["blood_group"] = blood_group
 
     if city:
-        q["city"] = {
+
+        query["city"] = {
+
             "$regex": city,
+
             "$options": "i"
         }
 
     if pincode:
-        q["pincode"] = pincode
+
+        query["pincode"] = pincode
 
     donors = list(
-        db[COL_USERS].find(q).limit(20)
+
+        db[COL_USERS]
+        .find(query)
+        .limit(20)
+
     )
 
     return jsonify({
-        "donors": [format_user_for_search(d) for d in donors]
-    })
 
+        "donors": [
+
+            format_user_for_search(d)
+
+            for d in donors
+        ]
+    })
 
 # =========================
 # CHAT
@@ -1010,12 +1229,20 @@ def update_availability():
     )
 
     db[COL_USERS].update_one(
+
         {
-            "phone": session["user_phone"]
+            "phone":
+                session["user_phone"]
         },
+
         {
             "$set": {
-                "available": available
+
+                "available":
+                    available,
+
+                "available_updated_at":
+                    datetime.utcnow()
             }
         }
     )
@@ -1088,45 +1315,156 @@ def requests_page():
         session["user_phone"]
     )
 
-    return render_template(
-        "requests.html",
-        user=user
+    expiry_time = datetime.utcnow() - timedelta(hours=24)
+
+    db[COL_REQUESTS].update_many(
+
+        {
+            "status": "pending",
+
+            "created_at": {
+                "$lt": expiry_time
+            }
+        },
+
+        {
+            "$set": {
+                "status": "expired"
+            }
+        }
     )
 
+    requests = list(
+
+        db[COL_REQUESTS].find(
+
+            {
+                "status": "pending"
+            }
+
+        ).sort(
+            "created_at",
+            -1
+        )
+
+    )
+
+    return render_template(
+
+        "requests.html",
+
+        user=user,
+
+        requests=requests
+    )
 # =========================
 # BLOOD REQUESTS
 # =========================
-
-@app.post("/api/create_request")
+@app.route("/api/create_request",
+    methods=["POST"]
+)
 def create_request():
 
     require_login()
 
     data = request.get_json()
 
-    request_doc = {
+    if not all([
 
-        "name":
-            data.get("name"),
+        data.get("name"),
+        data.get("blood_group"),
+        data.get("units"),
+        data.get("hospital"),
+        data.get("city"),
+        data.get("phone")
 
-        "blood_group":
-            data.get("blood_group"),
+    ]):
 
-        "units":
-            data.get("units"),
+        return jsonify({
 
-        "hospital":
-            data.get("hospital"),
+            "success": False,
+            "message": "All fields are required"
 
-        "city":
-            data.get("city"),
+        }), 400
 
-        "phone":
-            data.get("phone"),
+
+    existing_pending = db[COL_REQUESTS].find_one({
+
+        "created_by":
+            session["user_phone"],
 
         "status":
             "pending"
-    }
+
+    })
+
+    if existing_pending:
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "You already have a pending request."
+
+        }), 400
+
+
+    phone = str(
+        data.get("phone")
+    ).strip()
+
+    if (
+
+        not phone.isdigit()
+
+        or len(phone) != 10
+
+    ):
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Phone number must be 10 digits"
+
+        }), 400
+
+
+    request_doc = {
+
+    "name":
+        data.get("name"),
+
+    "blood_group":
+        data.get("blood_group"),
+
+    "units":
+        data.get("units"),
+
+    "hospital":
+        data.get("hospital"),
+
+    "city":
+        data.get("city"),
+
+    "pincode":
+        data.get("pincode"),
+
+    "phone":
+        phone,
+
+    "status":
+        "pending",
+
+    "created_at":
+        datetime.utcnow(),
+
+    "created_by":
+        session["user_phone"]
+
+}
 
     result = db[COL_REQUESTS].insert_one(
         request_doc
@@ -1136,28 +1474,43 @@ def create_request():
 
         "success": True,
 
-        "id": str(result.inserted_id)
+        "id":
+            str(result.inserted_id)
 
     })
-
-@app.route("/clear_requests")
-def clear_requests():
-
-    db[COL_REQUESTS].delete_many({})
-
-    return "All requests deleted"
 
 @app.get("/api/get_requests")
 def get_requests():
 
     require_login()
 
+    expiry_time = datetime.utcnow() - timedelta(hours=24)
+
+    db[COL_REQUESTS].update_many(
+
+        {
+            "status": "pending",
+
+            "created_at": {
+                "$lt": expiry_time
+            }
+        },
+
+        {
+            "$set": {
+                "status": "expired"
+            }
+        }
+    )
+
     requests_data = list(
+
         db[COL_REQUESTS]
         .find({
             "status": "pending"
         })
         .sort("created_at", -1)
+
     )
 
     output = []
@@ -1169,7 +1522,7 @@ def get_requests():
             "id":
                 str(r["_id"]),
 
-            "patient_name":
+            "name":
                 r.get("name"),
 
             "blood_group":
@@ -1196,6 +1549,12 @@ def get_requests():
             "expires_at":
                 r.get("expires_at"),
 
+            "resolved_by":
+                r.get("resolved_by"),
+
+            "resolved_at":
+                r.get("resolved_at"),
+
             "is_owner":
                 r.get("created_by")
                 == session["user_phone"]
@@ -1205,19 +1564,92 @@ def get_requests():
         "requests": output
     })
 
+@app.get("/api/recent_activities")
+def recent_activities():
+
+    activities = list(
+
+        db[COL_REQUESTS]
+        .find({
+
+            "status":
+                "resolved",
+
+            "resolved_by":
+                {
+                    "$exists": True
+                }
+
+        })
+        .sort("resolved_at", -1)
+        .limit(10)
+
+    )
+
+    output = []
+
+    for r in activities:
+
+        output.append({
+
+            "blood_group":
+                r.get("blood_group"),
+
+            "city":
+                r.get("city"),
+
+            "resolved_by":
+                r.get("resolved_by"),
+
+            "resolved_at":
+                r.get("resolved_at")
+
+        })
+
+    return jsonify({
+        "activities": output
+    })
+
 
 @app.post("/api/resolve_request/<request_id>")
 def resolve_request(request_id):
 
     require_login()
 
+    data = request.get_json()
+
+    resolved_by = (
+        data.get("resolved_by") or ""
+    ).strip()
+
+    if not resolved_by:
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Helper name required"
+
+        }), 400
+
     db[COL_REQUESTS].update_one(
+
         {
             "_id": ObjectId(request_id)
         },
+
         {
             "$set": {
-                "status": "resolved"
+
+                "status":
+                    "resolved",
+
+                "resolved_by":
+                    resolved_by,
+
+                "resolved_at":
+                    utcnow_iso()
             }
         }
     )
@@ -1234,6 +1666,180 @@ def chats_page():
     return render_template(
         "chats.html"
     )
+
+### Request History Page ###
+
+@app.route("/request_history")
+def request_history():
+
+    require_login()
+
+    return render_template(
+        "request_history.html"
+    )
+
+
+### Request History API ###
+
+@app.get("/api/request_history")
+def request_history_api():
+
+    require_login()
+
+    requests_data = list(
+
+        db[COL_REQUESTS]
+        .find({
+            "created_by":
+                session["user_phone"]
+        })
+        .sort("created_at", -1)
+
+    )
+
+    output = []
+
+    for r in requests_data:
+
+        output.append({
+
+            "id":
+                str(r["_id"]),
+
+            "name":
+                r.get("name"),
+
+            "blood_group":
+                r.get("blood_group"),
+
+            "units":
+                r.get("units"),
+
+            "hospital":
+                r.get("hospital"),
+
+            "city":
+                r.get("city"),
+
+            "phone":
+                r.get("phone"),
+
+            "status":
+                r.get("status"),
+
+            "created_at":
+                r.get("created_at")
+        })
+
+    return jsonify({
+        "requests": output
+    })
+
+@app.get("/api/user_names")
+def user_names():
+
+    require_login()
+
+    current_user = get_user_by_phone(
+        session["user_phone"]
+    )
+
+    if not current_user:
+
+        return jsonify({
+            "names": []
+        })
+
+    my_id = str(current_user["_id"])
+
+    chats = list(
+
+        db[COL_CHATS].find({
+
+            "$or": [
+
+                {
+                    "sender_id": my_id
+                },
+
+                {
+                    "receiver_id": my_id
+                }
+
+            ]
+
+        })
+
+    )
+
+    recent_names = []
+
+    for c in chats:
+
+        other_id = (
+
+            c["receiver_id"]
+
+            if c["sender_id"] == my_id
+
+            else c["sender_id"]
+
+        )
+
+        other_user = db[COL_USERS].find_one({
+
+            "_id": ObjectId(other_id)
+
+        })
+
+        if other_user and other_user.get("name"):
+
+            recent_names.append(
+                other_user["name"]
+            )
+
+    # remove duplicates
+    recent_names = list(
+        dict.fromkeys(recent_names)
+    )
+
+    # latest 3 only
+    recent_names = recent_names[:3]
+
+    all_users = list(
+
+        db[COL_USERS].find(
+
+            {},
+            {
+                "name": 1,
+                "_id": 0
+            }
+
+        )
+
+    )
+
+    all_names = []
+
+    for u in all_users:
+
+        if u.get("name"):
+
+            all_names.append(
+                u["name"]
+            )
+
+    return jsonify({
+
+        "recent":
+            recent_names,
+
+        "all":
+            all_names
+
+    })
+
 # =========================
 # MAIN
 # =========================

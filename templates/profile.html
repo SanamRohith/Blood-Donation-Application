@@ -1,74 +1,291 @@
 <!doctype html>
 <html lang="en">
+
 <head>
+
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Profile - Blood_Info_Services</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Profile - BloodLink
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
 </head>
+
 <body>
+
   <header class="dash-nav">
-    <div class="brand">Blood_Info_Services</div>
+
+    <div class="brand">
+      BloodLink
+    </div>
+
     <nav class="dash-links">
-      <a class="nav-item" href="/dashboard">Dashboard</a>
-      <a class="nav-item is-active" href="/profile">Profile</a>
-      <a class="nav-item" href="/logout">Logout</a>
+
+      <a
+        class="nav-item"
+        href="/dashboard"
+        data-translate="dashboard"
+      >
+        Dashboard
+      </a>
+
+      <a
+        class="nav-item is-active"
+        href="/profile"
+        data-translate="profile"
+      >
+        Profile
+      </a>
+
+      <a
+        class="nav-item"
+        href="/requests"
+        data-translate="requests"
+      >
+        Requests
+      </a>
+
+      <a
+        class="nav-item"
+        href="/logout"
+        data-translate="logout"
+      >
+        Logout
+      </a>
+
+      <select
+        id="language-select"
+        class="language-switch"
+      >
+
+        <option value="en">
+          English
+        </option>
+
+        <option value="te">
+          తెలుగు
+        </option>
+
+      </select>
+
     </nav>
+
   </header>
 
   <main class="dash-container">
+
     <section class="card auth-card">
+
       <div class="card-head">
-        <h3>Your Profile</h3>
+
+        <h3 data-translate="your_profile">
+          Your Profile
+        </h3>
+
       </div>
 
       {% if errors %}
+
         <div class="alert alert-error">
-          {% for e in errors %}<div>{{ e }}</div>{% endfor %}
+
+          {% for e in errors %}
+
+            <div>
+              {{ e }}
+            </div>
+
+          {% endfor %}
+
         </div>
+
       {% endif %}
 
-      <form method="post" action="/profile" class="profile-form">
+      <form
+        method="post"
+        action="/profile"
+        class="profile-form"
+      >
+
         <div class="avatar-row">
-          <div class="avatar">{{ profile.name[:1]|upper }}</div>
-          <div>
-            <div class="muted">User</div>
-            <div><b>{{ profile.name }}</b></div>
+
+          <div class="avatar">
+            {{ profile.name[:1]|upper }}
           </div>
+
+          <div>
+
+            <div class="muted">
+              User
+            </div>
+
+            <div>
+              <b>
+                {{ profile.name }}
+              </b>
+            </div>
+
+          </div>
+
         </div>
 
         <label class="field">
-          <span>Full Name</span>
-          <input name="name" type="text" value="{{ profile.name }}" required />
+
+          <span data-translate="full_name">
+            Full Name
+          </span>
+
+          <input
+            name="name"
+            type="text"
+            value="{{ profile.name }}"
+            required
+          />
+
         </label>
 
         <label class="field">
-          <span>Blood Group</span>
-          <input name="blood_group" type="text" value="{{ profile.blood_group }}" required />
+
+          <span data-translate="blood_group">
+            Blood Group
+          </span>
+
+          <input
+            name="blood_group"
+            type="text"
+            value="{{ profile.blood_group }}"
+            required
+          />
+
         </label>
 
         <label class="field">
-          <span>City</span>
-          <input name="city" type="text" value="{{ profile.city }}" required />
+
+          <span data-translate="city">
+            City
+          </span>
+
+          <input
+            name="city"
+            type="text"
+            value="{{ profile.city }}"
+            required
+          />
+
         </label>
 
         <label class="field">
-          <span>Pincode</span>
-          <input name="pincode" type="text" value="{{ profile.pincode }}" required />
+
+          <span data-translate="pincode">
+            Pincode
+          </span>
+
+          <input
+            name="pincode"
+            type="text"
+            value="{{ profile.pincode }}"
+            required
+          />
+
         </label>
 
+        <!-- HIDDEN LOCATION -->
+
+        <input
+          type="hidden"
+          id="latitude"
+          name="latitude"
+          value="{{ profile.latitude or '' }}"
+        >
+
+        <input
+          type="hidden"
+          id="longitude"
+          name="longitude"
+          value="{{ profile.longitude or '' }}"
+        >
+
         <label class="field">
-          <span>Availability Status</span>
+
+          <span data-translate="availability">
+            Availability Status
+          </span>
+
           <select name="available">
-            <option value="true" {% if profile.available %}selected{% endif %}>Available</option>
-            <option value="false" {% if not profile.available %}selected{% endif %}>Not Available</option>
+
+            <option
+              value="true"
+              {% if profile.available %}selected{% endif %}
+            >
+              Available
+            </option>
+
+            <option
+              value="false"
+              {% if not profile.available %}selected{% endif %}
+            >
+              Not Available
+            </option>
+
           </select>
+
         </label>
 
-        <button class="btn btn-primary" type="submit">Save Changes</button>
-      </form>
-    </section>
-  </main>
-</body>
-</html>
+        <button
+          class="btn btn-primary"
+          type="submit"
+          data-translate="save_changes"
+        >
+          Save Changes
+        </button>
 
+      </form>
+
+    </section>
+
+  </main>
+
+  <script>
+
+    const languageSelect =
+      document.getElementById(
+        "language-select"
+      );
+
+    const savedLanguage =
+      localStorage.getItem(
+        "language"
+      ) || "en";
+
+    languageSelect.value =
+      savedLanguage;
+
+    languageSelect.addEventListener(
+      "change",
+      function(){
+
+        localStorage.setItem(
+          "language",
+          this.value
+        );
+
+        applyTranslations();
+      }
+    );
+
+  </script>
+
+  <script src="{{ url_for('static', filename='translations.js') }}"></script>
+
+</body>
+
+</html>

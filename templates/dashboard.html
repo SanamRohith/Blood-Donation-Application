@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
 
   <meta charset="utf-8" />
@@ -61,13 +62,6 @@
 
       <a
         class="nav-item"
-        href="/chats"
-      >
-        Chat 🔔
-      </a>
-
-      <a
-        class="nav-item"
         href="/logout"
       >
         Logout
@@ -79,7 +73,16 @@
 
   <main class="dash-container">
 
-    <!-- HERO -->
+    {% if user.availability_expired %}
+
+    <div class="alert alert-error">
+
+      Your availability expired.
+      Please enable it again.
+
+    </div>
+
+    {% endif %}
 
     <section class="dash-hero">
 
@@ -90,7 +93,7 @@
         </h2>
 
         <p class="muted">
-          Find nearby blood donors and save lives faster with secure real-time communication.
+          Find nearby blood donors and save lives faster.
         </p>
 
       </div>
@@ -103,11 +106,11 @@
 
         <label class="switch">
 
-       <input
-  id="availability-toggle"
-  type="checkbox"
-  {% if user.available %}checked{% endif %}
->
+          <input
+            id="availability-toggle"
+            type="checkbox"
+            {% if user.available %}checked{% endif %}
+          >
 
           <span class="slider"></span>
 
@@ -116,9 +119,6 @@
       </div>
 
     </section>
-
-
-    <!-- SEARCH SECTION -->
 
     <section class="card search-card">
 
@@ -131,14 +131,12 @@
           </h3>
 
           <p class="search-subtitle">
-            Search verified donors by blood group, city, or pincode.
+            Search donors by blood group, city, or pincode.
           </p>
 
         </div>
 
       </div>
-
-      <!-- SEARCH FILTERS -->
 
       <div class="filters">
 
@@ -156,7 +154,6 @@
 
         </label>
 
-
         <label class="field">
 
           <span>
@@ -170,7 +167,6 @@
           />
 
         </label>
-
 
         <label class="field">
 
@@ -186,7 +182,6 @@
 
         </label>
 
-
         <button
           class="btn btn-primary search-btn"
           id="btn-search"
@@ -196,8 +191,6 @@
         </button>
 
       </div>
-
-      <!-- QUICK BLOOD GROUPS -->
 
       <div class="blood-chips">
 
@@ -210,8 +203,6 @@
 
       </div>
 
-      <!-- SEARCH RESULTS -->
-
       <div
         class="grid-donors"
         id="search-results"
@@ -222,17 +213,14 @@
         id="search-empty"
         style="display:none; margin-top:12px;"
       >
+
         No donors found.
+
       </div>
 
     </section>
 
-
-    <!-- DASHBOARD CARDS -->
-
     <div class="dashboard-cards">
-
-      <!-- RECENT LIFE SAVERS -->
 
       <section class="card">
 
@@ -244,14 +232,17 @@
 
         </div>
 
-        <div class="empty-state" id="recent-donors">
-          No recent donor activity.
+        <div id="recent-activities">
+
+          <div class="empty-state">
+
+            No recent donor activity.
+
+          </div>
+
         </div>
 
       </section>
-
-
-      <!-- AVAILABLE HEROES -->
 
       <section class="card">
 
@@ -263,8 +254,13 @@
 
         </div>
 
-        <div class="empty-state" id="available-donors">
+        <div
+          class="empty-state"
+          id="available-donors"
+        >
+
           No available heroes yet.
+
         </div>
 
       </section>
@@ -273,6 +269,15 @@
 
   </main>
 
+  <input
+    type="hidden"
+    id="latitude"
+  >
+
+  <input
+    type="hidden"
+    id="longitude"
+  >
 
   <script>
 
@@ -284,9 +289,86 @@
 
   </script>
 
+  <script>
+
+    async function getLocation(){
+
+        if(!navigator.geolocation){
+
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+
+            async(position)=>{
+
+                const latitude =
+                    position.coords.latitude;
+
+                const longitude =
+                    position.coords.longitude;
+
+                try{
+
+                    const response = await fetch(
+
+                        "/api/update_location",
+
+                        {
+
+                            method: "POST",
+
+                            headers:{
+
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                latitude,
+                                longitude
+                            })
+                        }
+                    );
+
+                    const data =
+                        await response.json();
+
+                    if(data.success){
+
+                        const locationBox =
+                            document.querySelector(
+                                ".nav-location-box"
+                            );
+
+                        if(locationBox){
+
+                            locationBox.innerHTML =
+
+                            `<span
+                                class="location-status"
+                            >
+                                📍 ${data.city}
+                            </span>`;
+                        }
+
+                    }
+
+                }catch(err){
+
+                    console.log(err);
+                }
+            }
+        );
+    }
+
+  </script>
+
   <script
-    src="{{ url_for('static', filename='script.js') }}"
+    src="{{ url_for('static', filename='script.js') }}?v=2"
   ></script>
 
 </body>
+
 </html>

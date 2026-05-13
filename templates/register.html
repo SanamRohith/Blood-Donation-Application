@@ -30,56 +30,258 @@
     rel="stylesheet"
   />
 
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Poppins',sans-serif;
+    }
+
+    body{
+
+      min-height:100vh;
+
+      background:
+      radial-gradient(
+        circle at top left,
+        rgba(255,0,0,.25),
+        transparent 30%
+      ),
+      #020617;
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      padding:30px;
+    }
+
+    .auth-wrap{
+      width:100%;
+      max-width:650px;
+    }
+
+    .auth-card{
+
+      background:#06122d;
+
+      border:1px solid rgba(255,255,255,.08);
+
+      border-radius:24px;
+
+      padding:40px;
+
+      box-shadow:
+      0 0 30px rgba(255,0,0,.12);
+    }
+
+    .logo{
+
+      color:white;
+
+      font-size:48px;
+
+      font-weight:800;
+
+      margin-bottom:5px;
+    }
+
+    .logo span{
+      color:#ff3b3b;
+    }
+
+    .tagline{
+
+      color:#94a3b8;
+
+      margin-bottom:30px;
+    }
+
+    h2{
+
+      color:white;
+
+      margin-bottom:25px;
+    }
+
+    .two-col{
+
+      display:grid;
+
+      grid-template-columns:1fr 1fr;
+
+      gap:16px;
+    }
+
+    .field{
+
+      display:flex;
+
+      flex-direction:column;
+
+      margin-bottom:18px;
+    }
+
+    .field span{
+
+      color:#cbd5e1;
+
+      margin-bottom:8px;
+
+      font-size:14px;
+    }
+
+    .field input{
+
+      height:55px;
+
+      border-radius:14px;
+
+      border:1px solid rgba(255,255,255,.08);
+
+      background:#020b1f;
+
+      padding:0 16px;
+
+      color:white;
+
+      font-size:15px;
+
+      outline:none;
+    }
+
+    .field input:focus{
+
+      border-color:#ff3b3b;
+    }
+
+    .otp-btn,
+    .btn-primary{
+
+      width:100%;
+
+      height:55px;
+
+      border:none;
+
+      border-radius:14px;
+
+      cursor:pointer;
+
+      color:white;
+
+      font-size:17px;
+
+      font-weight:700;
+
+      background:
+      linear-gradient(
+        135deg,
+        #ff4d4d,
+        #ff1f1f
+      );
+
+      margin-top:10px;
+
+      transition:.3s;
+    }
+
+    .otp-btn:hover,
+    .btn-primary:hover{
+
+      transform:translateY(-2px);
+
+      box-shadow:
+      0 0 20px rgba(255,0,0,.35);
+    }
+
+    #otp-section{
+      display:none;
+    }
+
+    #recaptcha-container{
+      margin-top:18px;
+      margin-bottom:18px;
+    }
+
+    .success-text{
+
+      color:#4ade80;
+
+      margin-top:12px;
+
+      font-size:14px;
+    }
+
+    .auth-links{
+
+      margin-top:20px;
+
+      text-align:center;
+    }
+
+    .auth-links a{
+
+      color:#cbd5e1;
+
+      text-decoration:none;
+
+      font-size:14px;
+    }
+
+    .auth-links a:hover{
+      color:#ff4d4d;
+    }
+
+    .dot{
+      color:#64748b;
+      margin:0 10px;
+    }
+
+    @media(max-width:700px){
+
+      .two-col{
+        grid-template-columns:1fr;
+      }
+
+      .auth-card{
+        padding:28px;
+      }
+
+      .logo{
+        font-size:40px;
+      }
+
+    }
+
+  </style>
+
 </head>
 
 <body>
 
   <div class="auth-wrap">
 
-    <!-- TOP BRANDING -->
+    <div class="logo">
+      Blood<span>Link</span>
+    </div>
 
-    <header class="auth-head">
-
-      <div class="logo-container">
-
-        <h1 class="logo">
-          Blood<span>Link</span>
-        </h1>
-
-        <p class="tagline">
-          Linking Blood to Life
-        </p>
-
-      </div>
-
-    </header>
-
-
-    <!-- REGISTER FORM -->
+    <p class="tagline">
+      Linking Blood to Life
+    </p>
 
     <form
       id="register-form"
       class="auth-card"
-      method="post"
+      method="POST"
       action="/register"
-      novalidate
     >
 
       <h2>
         Create your account
       </h2>
-
-
-      <!-- ERROR BOX -->
-
-      <div
-        id="register-errors"
-        class="alert alert-error"
-        style="display:none;"
-      ></div>
-
-
-      <!-- NAME + PHONE -->
 
       <div class="two-col">
 
@@ -90,15 +292,14 @@
           </span>
 
           <input
-            id="name"
-            name="name"
             type="text"
+            name="name"
+            id="name"
             placeholder="Enter full name"
             required
           />
 
         </label>
-
 
         <label class="field">
 
@@ -107,10 +308,10 @@
           </span>
 
           <input
-            id="phone"
-            name="phone"
             type="text"
-            placeholder="e.g. 9876543210"
+            name="phone"
+            id="phone"
+            placeholder="9876543210"
             required
           />
 
@@ -118,8 +319,46 @@
 
       </div>
 
+      <button
+        type="button"
+        class="otp-btn"
+        onclick="sendOTP()"
+      >
+        Send OTP
+      </button>
 
-      <!-- PASSWORD -->
+      <div id="recaptcha-container"></div>
+
+      <div id="otp-section">
+
+        <label class="field">
+
+          <span>
+            Enter OTP
+          </span>
+
+          <input
+            type="text"
+            id="otp"
+            placeholder="Enter OTP"
+          />
+
+        </label>
+
+        <button
+          type="button"
+          class="otp-btn"
+          onclick="verifyOTP()"
+        >
+          Verify OTP
+        </button>
+
+        <p
+          id="otp-success"
+          class="success-text"
+        ></p>
+
+      </div>
 
       <label class="field">
 
@@ -128,17 +367,13 @@
         </span>
 
         <input
-          id="password"
-          name="password"
           type="password"
-          placeholder="Create a password"
+          name="password"
+          placeholder="Create password"
           required
         />
 
       </label>
-
-
-      <!-- CONFIRM PASSWORD -->
 
       <label class="field">
 
@@ -147,17 +382,13 @@
         </span>
 
         <input
-          id="confirm-password"
-          name="confirm_password"
           type="password"
-          placeholder="Confirm your password"
+          name="confirm_password"
+          placeholder="Confirm password"
           required
         />
 
       </label>
-
-
-      <!-- BLOOD GROUP -->
 
       <label class="field">
 
@@ -166,17 +397,13 @@
         </span>
 
         <input
-          id="blood-group"
-          name="blood_group"
           type="text"
-          placeholder="e.g. O+, A-"
+          name="blood_group"
+          placeholder="A+, O-, AB+"
           required
         />
 
       </label>
-
-
-      <!-- CITY + PINCODE -->
 
       <div class="two-col">
 
@@ -187,15 +414,13 @@
           </span>
 
           <input
-            id="city"
-            name="city"
             type="text"
+            name="city"
             placeholder="Enter city"
             required
           />
 
         </label>
-
 
         <label class="field">
 
@@ -204,9 +429,8 @@
           </span>
 
           <input
-            id="pincode"
-            name="pincode"
             type="text"
+            name="pincode"
             placeholder="Enter pincode"
             required
           />
@@ -215,25 +439,18 @@
 
       </div>
 
-
-      <!-- BUTTON -->
-
       <button
-        class="btn btn-primary btn-lg"
         type="submit"
+        id="register-btn"
+        class="btn-primary"
+        disabled
       >
         Create Account
       </button>
 
-
-      <!-- LINKS -->
-
       <div class="auth-links">
 
-        <a
-          class="btn btn-link"
-          href="/"
-        >
+        <a href="/">
           Back to Home
         </a>
 
@@ -241,10 +458,7 @@
           •
         </span>
 
-        <a
-          class="btn btn-link"
-          href="/login"
-        >
+        <a href="/login">
           Already have an account?
         </a>
 
@@ -254,151 +468,147 @@
 
   </div>
 
+  <!-- Firebase -->
 
-  <!-- VALIDATION -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
   <script>
 
-    const registerForm =
-      document.getElementById(
-        "register-form"
+    const firebaseConfig = {
+
+      apiKey:
+        "AIzaSyDmo_lZ992ShobFM3HEa7R0cvKdvQIkhtM",
+
+      authDomain:
+        "bloodlink-fbb09.firebaseapp.com",
+
+      projectId:
+        "bloodlink-fbb09",
+
+      storageBucket:
+        "bloodlink-fbb09.firebasestorage.app",
+
+      messagingSenderId:
+        "155362884956",
+
+      appId:
+        "1:155362884956:web:b8895727beda9134ea9599"
+
+    };
+
+    firebase.initializeApp(
+      firebaseConfig
+    );
+
+    const auth =
+      firebase.auth();
+
+    window.recaptchaVerifier =
+      new firebase.auth.RecaptchaVerifier(
+
+        'recaptcha-container',
+
+        {
+          size:'normal'
+        }
+
       );
 
-    registerForm.addEventListener(
-      "submit",
-      function(e){
+    function sendOTP(){
 
-        let hasError = false;
+      const phone =
+        document.getElementById(
+          "phone"
+        ).value.trim();
 
-        const fields = [
+      if(
+        phone.length !== 10
+      ){
 
-          {
-            id:"name",
-            message:"Full Name is required."
-          },
+        alert(
+          "Enter valid 10 digit number"
+        );
 
-          {
-            id:"phone",
-            message:"Phone Number is required."
-          },
-
-          {
-            id:"password",
-            message:"Password is required."
-          },
-
-          {
-            id:"blood-group",
-            message:"Blood Group is required."
-          },
-
-          {
-            id:"city",
-            message:"City is required."
-          },
-
-          {
-            id:"pincode",
-            message:"Pincode is required."
-          }
-
-        ];
-
-        document
-          .querySelectorAll(".error-text")
-          .forEach(el => el.remove());
-
-        document
-          .querySelectorAll(".input-error")
-          .forEach(el => {
-            el.classList.remove(
-              "input-error"
-            );
-          });
-
-        fields.forEach(field => {
-
-          const input =
-            document.getElementById(
-              field.id
-            );
-
-          if(
-            !input.value.trim()
-          ){
-
-            hasError = true;
-
-            input.classList.add(
-              "input-error"
-            );
-
-            const error =
-              document.createElement(
-                "small"
-              );
-
-            error.className =
-              "error-text";
-
-            error.innerText =
-              field.message;
-
-            input.parentElement.appendChild(
-              error
-            );
-          }
-        });
-
-        const password =
-          document.getElementById(
-            "password"
-          );
-
-        const confirmPassword =
-          document.getElementById(
-            "confirm-password"
-          );
-
-        if(
-          password.value &&
-          confirmPassword.value &&
-          password.value !==
-          confirmPassword.value
-        ){
-
-          hasError = true;
-
-          confirmPassword.classList.add(
-            "input-error"
-          );
-
-          const error =
-            document.createElement(
-              "small"
-            );
-
-          error.className =
-            "error-text";
-
-          error.innerText =
-            "Passwords do not match.";
-
-          confirmPassword
-            .parentElement
-            .appendChild(error);
-        }
-
-        if(hasError){
-
-          e.preventDefault();
-        }
-
+        return;
       }
-    );
+
+      const fullPhone =
+        "+91" + phone;
+
+      auth.signInWithPhoneNumber(
+
+        fullPhone,
+
+        window.recaptchaVerifier
+
+      )
+
+      .then(function(result){
+
+        window.confirmationResult =
+          result;
+
+        document.getElementById(
+          "otp-section"
+        ).style.display = "block";
+
+        alert(
+          "OTP Sent Successfully"
+        );
+
+      })
+
+      .catch(function(error){
+
+        alert(
+          error.message
+        );
+
+      });
+
+    }
+
+    function verifyOTP(){
+
+      const otp =
+        document.getElementById(
+          "otp"
+        ).value;
+
+      confirmationResult.confirm(
+        otp
+      )
+
+      .then(function(result){
+
+        document.getElementById(
+          "otp-success"
+        ).innerText =
+          "Phone Verified Successfully";
+
+        document.getElementById(
+          "register-btn"
+        ).disabled = false;
+
+        alert(
+          "OTP Verified Successfully"
+        );
+
+      })
+
+      .catch(function(error){
+
+        alert(
+          "Invalid OTP"
+        );
+
+      });
+
+    }
 
   </script>
 
 </body>
 </html>
-```

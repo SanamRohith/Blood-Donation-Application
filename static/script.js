@@ -69,18 +69,32 @@ function donorCardHTML(d) {
           Pincode:
           <b>${escapeHtml(d.pincode || '-')}</b>
         </p>
+        <p>
+  Phone:
+  <b>${escapeHtml(d.phone || '-')}</b>
+</p>
 
       </div>
 
-      <button
-        class="chat-btn"
-        type="button"
-        onclick="openPrivateChat('${d.id}')"
-      >
-        Private Chat
-      </button>
+      <div class="donor-actions">
 
-    </div>
+  <a
+    href="tel:${d.phone}"
+    class="btn btn-secondary"
+  >
+    📞 Call
+  </a>
+
+  <a
+    href="https://wa.me/91${d.phone}?text=Hi%20I%20need%20blood%20donation%20help"
+    target="_blank"
+    class="btn btn-primary"
+  >
+    💬 WhatsApp
+  </a>
+
+</div>
+
   `;
 }
 
@@ -221,303 +235,6 @@ async function searchDonors() {
 
 }
 
-
-/* =========================
-   OPEN PRIVATE CHAT
-========================= */
-
-window.openPrivateChat = async function (receiverId) {
-
-  try {
-
-    const res = await fetch('/api/create_chat', {
-
-      method: 'POST',
-
-      headers: {
-        'Content-Type': 'application/json'
-      },
-
-      body: JSON.stringify({
-        receiver_id: receiverId
-      })
-
-    });
-
-    const data = await res.json();
-
-    if (!data.chat_id) {
-      throw new Error(
-        data.error || 'chat_id missing'
-      );
-    }
-
-    window.location.href =
-      '/chat/' + data.chat_id;
-
-  } catch (e) {
-
-    console.error(e);
-
-    alert('Unable to start chat.');
-  }
-};
-
-
-/* =========================
-   LOAD CHAT MESSAGES
-========================= */
-
-async function loadMessages(chatId) {
-
-  const wrap = el('chat-bubbles');
-
-  if (!wrap) return;
-
-  const res = await fetch(
-    '/get_messages?chat_id=' +
-      encodeURIComponent(chatId),
-    {
-      headers: {
-        Accept: 'application/json'
-      },
-    }
-  );
-
-  const data = await res.json();
-
-  wrap.innerHTML = '';
-
-  const currentUser =
-    window.BLOOD_CHAT?.currentUser;
-
-  (data.messages || []).forEach((m) => {
-
-    const mine =
-      currentUser &&
-      m.sender_phone === currentUser;
-
-    const align =
-      mine ? 'me' : 'other';
-
-    wrap.insertAdjacentHTML(
-
-      'beforeend',
-
-      `
-      <div class="message-row ${align}">
-
-        <div class="message-bubble">
-
-          <div class="meta">
-            ${escapeHtml(m.sender || '')}
-          </div>
-
-          <div class="text">
-            ${escapeHtml(m.message || '')}
-          </div>
-
-        </div>
-
-      </div>
-      `
-    );
-
-  });
-
-  wrap.scrollTop =
-    wrap.scrollHeight;
-}
-
-
-/* =========================
-   SEND MESSAGE
-========================= */
-
-async function sendMessage() {
-
-  const chatId =
-    window.BLOOD_CHAT?.chatId;
-
-  if (!chatId) return;
-
-  const input = el('message-input');
-
-  const text = (
-    input?.value || ''
-  ).trim();
-
-  if (!text) return;
-
-  await fetch('/send_message', {
-
-    method: 'POST',
-
-    headers: {
-      'Content-Type': 'application/json'
-    },
-
-    body: JSON.stringify({
-      chat_id: chatId,
-      message: text,
-    }),
-
-  });
-
-  if (input) {
-    input.value = '';
-  }
-
-  await loadMessages(chatId);
-
-}
-
-
-/* =========================
-   INIT CHAT
-========================= */
-
-async function initChat() {
-
-  if (!window.BLOOD_CHAT?.chatId) {
-    return;
-  }
-
-  const chatId =
-    window.BLOOD_CHAT.chatId;
-
-  const sendBtn = el('send-btn');
-
-  const input = el('message-input');
-
-  if (sendBtn) {
-
-    sendBtn.addEventListener(
-      'click',
-      sendMessage
-    );
-
-  }
-
-  if (input) {
-
-    input.addEventListener(
-      'keydown',
-      (e) => {
-
-        if (e.key === 'Enter') {
-          sendMessage();
-        }
-
-      }
-    );
-
-  }
-
-  await loadMessages(chatId);
-
-  setInterval(() => {
-
-    loadMessages(chatId);
-
-  }, 2000);
-
-}
-
-
-/* =========================
-   LOAD MY CHATS
-========================= */
-
-async function loadMyChats() {
-
-  const wrap =
-    document.getElementById(
-      'my-chats-list'
-    );
-
-  if (!wrap) return;
-
-  try {
-
-    const res = await fetch(
-      '/api/my_chats',
-      {
-        headers: {
-          Accept: 'application/json'
-        }
-      }
-    );
-
-    const data = await res.json();
-
-    wrap.innerHTML = '';
-
-    if (!data.chats.length) {
-
-      wrap.innerHTML = `
-        <div class="muted">
-          No chats yet
-        </div>
-      `;
-
-      return;
-    }
-
-    data.chats.forEach((c) => {
-
-      wrap.insertAdjacentHTML(
-        'beforeend',
-        `
-        <div class="donor-card">
-
-          <div class="donor-top">
-
-            <div class="donor-name">
-              ${escapeHtml(c.name)}
-            </div>
-
-            <span class="donor-badge">
-              New Message
-            </span>
-
-          </div>
-
-          <div class="donor-meta">
-
-            <p>
-              ${escapeHtml(
-                c.last_message || ''
-              )}
-            </p>
-
-          </div>
-
-          <button
-            class="chat-btn"
-            onclick="
-              window.location.href=
-              '/chat/${c.chat_id}'
-            "
-          >
-            Open Chat
-          </button>
-
-        </div>
-        `
-      );
-
-    });
-
-  } catch (e) {
-
-    console.error(e);
-
-  }
-
-}
-
-
 /* =========================
    DASHBOARD
 ========================= */
@@ -535,11 +252,277 @@ async function initDashboard() {
 
   await loadRecentAndAvailable();
 
-  await loadMyChats();
 
 }
 
+const availabilityToggle =
+  document.getElementById(
+    "availability-toggle"
+  );
 
+if(availabilityToggle){
+
+  availabilityToggle.addEventListener(
+
+    "change",
+
+    async function(){
+
+      try{
+
+        const res = await fetch(
+          "/api/update_availability",
+          {
+
+            method:"POST",
+
+            headers:{
+              "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+
+              available:
+                availabilityToggle.checked
+
+            })
+          }
+        );
+
+        const data =
+          await res.json();
+
+        if(data.success){
+
+          console.log(
+            t("availability_updated")
+          );
+
+        }else{
+
+          alert(
+            t("availability_failed")
+          );
+        }
+
+      }catch(err){
+
+        console.error(err);
+
+        alert(
+          t("something_wrong")
+        );
+      }
+
+    }
+  );
+}
+
+async function loadRecentActivities(){
+
+  const container =
+    document.getElementById(
+      "recent-activities"
+    );
+
+  if(!container){
+    return;
+  }
+
+  const res = await fetch(
+    "/api/recent_activities"
+  );
+
+  const data = await res.json();
+
+  if(
+    !data.activities ||
+    data.activities.length === 0
+  ){
+
+    container.innerHTML = `
+
+      <div class="empty-state">
+        ${t("no_recent_activity")}
+      </div>
+
+    `;
+
+    return;
+  }
+
+  container.innerHTML = "";
+
+  data.activities.forEach(a => {
+
+    const time =
+      a.resolved_at
+      ? new Date(
+          a.resolved_at
+        ).toLocaleString()
+      : "Recently";
+
+    container.innerHTML += `
+
+  <div class="activity-item">
+
+    <div class="activity-icon">
+      🩸
+    </div>
+
+    <div class="activity-content">
+
+      <div>
+
+        <strong>
+          ${a.resolved_by}
+        </strong>
+
+        helped resolve an emergency
+
+        <strong>
+          ${a.blood_group}
+        </strong>
+
+        request
+
+      </div>
+
+      <div class="activity-time">
+
+        📍 ${a.city}
+        • ${time}
+
+      </div>
+
+    </div>
+
+  </div>
+
+`;
+  });
+}
+
+loadRecentActivities();
+
+document.querySelectorAll(".chip")
+.forEach(chip => {
+
+    chip.addEventListener(
+        "click",
+        () => {
+
+            const blood =
+                chip.innerText.trim();
+
+            document.getElementById(
+                "filter-blood"
+            ).value = blood;
+
+            document.getElementById(
+                "btn-search"
+            ).click();
+        }
+    );
+
+});
+
+/* Location ========== */
+
+function getLocation() {
+
+    if (!navigator.geolocation) {
+
+        alert("Geolocation not supported");
+
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        async(position) => {
+
+            const latitude =
+                position.coords.latitude;
+
+            const longitude =
+                position.coords.longitude;
+
+            try {
+
+                const response = await fetch(
+
+                    "/api/update_location",
+
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            latitude,
+                            longitude
+                        })
+                    }
+                );
+
+                const data =
+                    await response.json();
+
+                if(data.success){
+
+                    const locationBox =
+                        document.querySelector(
+                            ".nav-location-box"
+                        );
+
+                    if(locationBox){
+
+                        locationBox.innerHTML =
+
+                        `<span class="location-status">
+                            📍 ${data.city}
+                        </span>`;
+                    }
+
+                    console.log(
+                        "Location updated"
+                    );
+
+                }else{
+
+                    alert(
+                        "Failed to update location"
+                    );
+                }
+
+            } catch(err){
+
+                console.log(err);
+
+                alert(
+                    "Server error"
+                );
+            }
+        },
+
+        (error) => {
+
+            alert(
+                "Location permission denied"
+            );
+
+            console.log(error);
+        }
+    );
+}
 /* =========================
    DOM READY
 ========================= */
