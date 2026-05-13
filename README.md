@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Blood_Info_Services
 
 Privacy-focused blood donor management and donor finder platform.
@@ -48,3 +49,6 @@ Privacy-focused blood donor management and donor finder platform.
 - Chat stores sender alias (name) and messages without phone numbers.
 
 
+=======
+# Blood-Donation-Application
+>>>>>>> d6be9d8ff07fe3d750563b7682bbceb39717cc7d
