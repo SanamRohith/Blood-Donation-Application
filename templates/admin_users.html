@@ -1,0 +1,187 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Admin Users
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <header class="admin-navbar">
+
+    <div class="admin-logo-wrap">
+
+      <div class="admin-logo">
+        Blood<span>Link</span>
+      </div>
+
+      <div class="admin-caption">
+        Linking Blood to Life
+      </div>
+
+    </div>
+
+    <div class="admin-title">
+      Users
+    </div>
+
+    <div class="admin-nav-right">
+
+      <button
+        class="admin-logout-btn"
+        onclick="window.location.href='/admin'"
+      >
+        Back
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- TOP ACTIONS -->
+
+  <div class="admin-users-top">
+
+    <button
+      class="add-user-btn"
+      onclick="window.location.href='/admin/add_user'"
+    >
+      + Add User
+    </button>
+
+  </div>
+
+  <!-- USERS TABLE -->
+
+  <div class="admin-table-wrap">
+
+    <table class="admin-table">
+
+      <thead>
+
+        <tr>
+
+          <th>Name</th>
+
+          <th>Phone</th>
+
+          <th>Blood Group</th>
+
+          <th>City</th>
+
+          <th>Action</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {% for user in users %}
+
+        <tr>
+
+          <td>
+            {{ user.name }}
+          </td>
+
+          <td>
+            {{ user.phone }}
+          </td>
+
+          <td>
+            {{ user.blood_group }}
+          </td>
+
+          <td>
+            {{ user.city }}
+          </td>
+
+          <td>
+
+            <button
+              class="delete-user-btn"
+              onclick="deleteUser('{{ user._id }}')"
+            >
+              Delete
+            </button>
+
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <!-- SCRIPTS -->
+
+  <script>
+
+    async function deleteUser(userId) {
+
+      const ok = confirm(
+        "Delete this user?"
+      );
+
+      if (!ok) return;
+
+      try {
+
+        const res = await fetch(
+          "/admin/delete_user/" + userId,
+          {
+            method: "POST"
+          }
+        );
+
+        const data = await res.json();
+
+        if (data.success) {
+
+          location.reload();
+
+        } else {
+
+          alert("Delete failed");
+
+        }
+
+      } catch (err) {
+
+        console.error(err);
+
+        alert("Server error");
+
+      }
+
+    }
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Request History
+    </title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+
+            font-family:'Poppins',sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(255,0,60,.18),
+                    transparent 30%
+                ),
+                #020817;
+
+            color:#fff;
+
+            min-height:100vh;
+
+            padding:40px;
+        }
+
+        .header{
+
+            width:100%;
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            margin-bottom:30px;
+        }
+
+        h1{
+
+            font-size:52px;
+
+            font-weight:800;
+        }
+
+        .header-buttons{
+
+            display:flex;
+
+            gap:12px;
+        }
+
+        .btn{
+
+            padding:14px 28px;
+
+            border:none;
+
+            border-radius:16px;
+
+            cursor:pointer;
+
+            font-size:16px;
+
+            font-weight:700;
+
+            color:white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ff4d4d,
+                    #dc2626
+                );
+
+            box-shadow:
+                0 10px 30px rgba(239,68,68,.35);
+
+            transition:.25s;
+        }
+
+        .btn:hover{
+
+            transform:translateY(-2px);
+        }
+
+        .card{
+
+            background:
+                rgba(15,23,42,.78);
+
+            border:
+                1px solid rgba(255,255,255,.08);
+
+            border-radius:28px;
+
+            padding:28px;
+
+            margin-bottom:24px;
+
+            backdrop-filter:blur(12px);
+
+            box-shadow:
+                0 10px 30px rgba(0,0,0,.35);
+        }
+
+        .request-card h2{
+
+            font-size:30px;
+
+            margin-bottom:16px;
+        }
+
+        .request-card p{
+
+            margin-top:10px;
+
+            color:#d1d5db;
+
+            font-size:16px;
+        }
+
+        .request-card b{
+
+            color:#fff;
+        }
+
+        .status{
+
+            display:inline-block;
+
+            padding:7px 14px;
+
+            border-radius:999px;
+
+            font-size:14px;
+
+            font-weight:700;
+
+            margin-top:5px;
+        }
+
+        .pending{
+
+            background:#f59e0b;
+
+            color:#fff;
+        }
+
+        .resolved{
+
+            background:#22c55e;
+
+            color:#fff;
+        }
+
+        .expired{
+
+            background:#6b7280;
+
+            color:#fff;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+
+        <h1>
+            Request History
+        </h1>
+
+        <div class="header-buttons">
+
+            <button
+                class="btn"
+                onclick="window.location.href='/requests'"
+            >
+                ← Requests
+            </button>
+
+            <button
+                class="btn"
+                onclick="window.location.href='/dashboard'"
+            >
+                Home
+            </button>
+
+        </div>
+
+    </div>
+
+    <div id="history-container"></div>
+
+<script>
+
+async function loadHistory(){
+
+    const res = await fetch(
+        "/api/request_history"
+    );
+
+    const data = await res.json();
+
+    const container =
+        document.getElementById(
+            "history-container"
+        );
+
+    container.innerHTML = "";
+
+    if(
+        !data.requests ||
+        data.requests.length === 0
+    ){
+
+        container.innerHTML = `
+            <div class="card">
+                <h2>No History Found</h2>
+            </div>
+        `;
+
+        return;
+    }
+
+    data.requests.forEach(r => {
+
+        let statusClass = "pending";
+
+        if(r.status === "resolved"){
+            statusClass = "resolved";
+        }
+
+        if(r.status === "expired"){
+            statusClass = "expired";
+        }
+
+        container.innerHTML += `
+
+        <div class="card request-card">
+
+            <h2>${r.name || "Unknown"}</h2>
+
+            <p>
+                <b>Blood Group:</b>
+                ${r.blood_group}
+            </p>
+
+            <p>
+                <b>Units:</b>
+                ${r.units}
+            </p>
+
+            <p>
+                <b>Hospital:</b>
+                ${r.hospital}
+            </p>
+
+            <p>
+                <b>City:</b>
+                ${r.city}
+            </p>
+
+            <p>
+                <b>Phone:</b>
+                ${r.phone}
+            </p>
+
+            <p>
+
+                <b>Status:</b>
+
+                <span class="status ${statusClass}">
+                    ${r.status}
+                </span>
+
+            </p>
+
+            <p>
+
+                <b>Created:</b>
+
+                ${
+                    r.created_at
+                    ? new Date(r.created_at)
+                        .toLocaleString()
+                    : "-"
+                }
+
+            </p>
+
+        </div>
+
+        `;
+    });
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Add User
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <header class="admin-navbar">
+
+    <div class="admin-logo-wrap">
+
+      <div class="admin-logo">
+        Blood<span>Link</span>
+      </div>
+
+      <div class="admin-caption">
+        Linking Blood to Life
+      </div>
+
+    </div>
+
+    <div class="admin-title">
+      Add User
+    </div>
+
+    <div class="admin-nav-right">
+
+      <button
+        class="admin-logout-btn"
+        onclick="window.location.href='/admin/users'"
+      >
+        Back
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- FORM -->
+
+  <div class="add-user-page">
+
+    <form
+      class="add-user-form"
+      method="POST"
+      action="/admin/add_user"
+    >
+
+      <h2>
+        Create New User
+      </h2>
+
+      <input
+        type="text"
+        name="name"
+        placeholder="Full Name"
+        required
+      >
+
+      <input
+        type="text"
+        name="phone"
+        placeholder="Phone Number"
+        minlength="10"
+        maxlength="10"
+        required
+      >
+
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        minlength="8"
+        required
+      >
+
+      <input
+        type="text"
+        name="blood_group"
+        placeholder="Blood Group"
+        required
+      >
+
+      <input
+        type="text"
+        name="city"
+        placeholder="City"
+        required
+      >
+      <input
+  type="text"
+  name="pincode"
+  placeholder="Pincode"
+  minlength="6"
+  maxlength="6"
+  required
+>
+
+      <button
+        type="submit"
+        class="save-user-btn"
+      >
+        Save User
+      </button>
+
+    </form>
+
+  </div>
+
+</body>
+
+</html>

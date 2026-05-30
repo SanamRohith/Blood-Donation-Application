@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BloodLink</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            <span class="logo-icon">🩸</span>
+            <h2>Blood<span>Link</span></h2>
+        </div>
+
+        <div class="nav-buttons">
+
+            <a href="/register" class="register-btn">
+                Register
+            </a>
+
+            <a href="/login" class="signin-btn">
+                Sign In
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- HERO SECTION -->
+
+    <section class="hero">
+
+        
+
+        <h1>
+            Every Drop <br>
+            <span>Saves a Life</span>
+        </h1>
+
+        <p>
+            BloodLink connects blood donors with patients in urgent
+            need using smart donor matching and instant emergency contact.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="/register" class="primary-btn">
+                Become a Donor
+            </a>
+
+            <a href="/login" class="secondary-btn">
+                Request Blood
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- BLOOD GROUPS -->
+
+    <section class="blood-section">
+
+        <h2>All Blood Types Supported</h2>
+
+        <p>
+            Real-time blood donor availability across the network
+        </p>
+
+        <div class="blood-grid">
+
+            <div class="blood-card critical">A+</div>
+
+            <div class="blood-card available">A-</div>
+
+            <div class="blood-card low">B+</div>
+
+            <div class="blood-card critical">B-</div>
+
+            <div class="blood-card available">AB+</div>
+
+            <div class="blood-card low">AB-</div>
+
+            <div class="blood-card critical">O+</div>
+
+            <div class="blood-card available">O-</div>
+
+        </div>
+
+        <div class="legend">
+
+            <span>
+                <span class="dot red"></span>
+                Critical
+            </span>
+
+            <span>
+                <span class="dot yellow"></span>
+                Low
+            </span>
+
+            <span>
+                <span class="dot green"></span>
+                Available
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- PROJECT FEATURES -->
+
+    <section class="features">
+
+        <div class="features-heading">
+
+            <h2>BloodLink Project Features</h2>
+
+            <p>
+                Real-time smart blood donation management system
+            </p>
+
+        </div>
+
+        <div class="feature-grid">
+
+
+            <!-- CARD 1 -->
+
+            <div class="feature-card">
+
+                <div class="icon green">🩸</div>
+
+                <h3>Smart Donor Search</h3>
+
+                <p>
+                    Find nearby blood donors instantly
+                    based on blood group, location,
+                    and donor availability.
+                </p>
+
+            </div>
+
+
+            <!-- CARD 2 -->
+
+            <div class="feature-card">
+
+                <div class="icon red-bg">📞</div>
+
+                <h3>Emergency Contact</h3>
+
+                <p>
+                    Instant WhatsApp messaging and
+                    one-click calling support during
+                    emergency blood requests.
+                </p>
+
+            </div>
+
+
+            <!-- CARD 3 -->
+
+            <div class="feature-card">
+
+                <div class="icon blue">⚡</div>
+
+                <h3>Real-Time Requests</h3>
+
+                <p>
+                    Send and receive emergency blood
+                    requests instantly with fast donor
+                    response and live updates.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CTA SECTION -->
+
+    <section class="cta">
+
+        <h2>Ready to Save a Life?</h2>
+
+        <p>
+            Join thousands of donors making a real difference.
+            Your blood donation can save up to 3 lives.
+        </p>
+
+        <a href="/register" class="primary-btn">
+            Join BloodLink Today
+        </a>
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <div class="footer-logo">
+            🩸 Blood<span>Link</span>
+        </div>
+
+        <div class="footer-center">
+            © 2026 BloodLink · Linking Blood to Life · Every drop matters
+        </div>
+
+        <div class="footer-badge">
+            ❤️ Saving Lives Daily
+        </div>
+
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Admin Dashboard
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <header class="admin-navbar">
+
+    <!-- LEFT -->
+
+    <div class="admin-logo-wrap">
+
+      <div class="admin-logo">
+        Blood<span>Link</span>
+      </div>
+
+      <div class="admin-caption">
+        Linking Blood to Life
+      </div>
+
+    </div>
+
+    <!-- CENTER -->
+
+    <div class="admin-title">
+      Admin Dashboard
+    </div>
+
+    <!-- RIGHT -->
+
+    <div class="admin-nav-right">
+
+      <button
+        class="admin-logout-btn"
+        onclick="window.location.href='/logout'"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- MAIN -->
+
+  <div class="admin-page">
+
+    <div class="admin-cards">
+
+      <!-- USERS -->
+
+      <div
+        class="admin-card"
+        onclick="window.location.href='/admin/users'"
+      >
+        Users
+      </div>
+
+      <!-- DONORS -->
+
+      <div
+  class="admin-card"
+  onclick="window.location.href='/admin/donors'"
+>
+  Donors
+</div>
+
+      <!-- REQUESTS -->
+
+      <div
+  class="admin-card"
+  onclick="window.location.href='/admin/requests'"
+>
+  Requests
+</div>
+
+      
+
+    </div>
+
+  </div>
+
+</body>
+
+</html>

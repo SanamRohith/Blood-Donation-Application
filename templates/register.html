@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>
+    Register - BloodLink
+  </title>
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="{{ url_for('static', filename='favicon.png') }}"
+  />
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Poppins',sans-serif;
+    }
+
+   body{
+
+  min-height:100vh;
+
+  background:
+  radial-gradient(
+    circle at top left,
+    rgba(255,0,0,.25),
+    transparent 30%
+  ),
+  #020617;
+
+  padding:30px;
+}
+
+    .auth-wrap{
+    width:100%;
+    max-width:1000px;
+    margin:0 auto;
+}
+
+    .auth-card{
+
+    width:100%;
+
+    background:#06122d;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:24px;
+
+    padding:40px;
+
+    box-shadow:
+    0 0 30px rgba(255,0,0,.12);
+}
+    .logo{
+
+      color:white;
+
+      font-size:48px;
+
+      font-weight:800;
+
+      margin-bottom:5px;
+    }
+
+    .logo span{
+      color:#ff3b3b;
+    }
+
+    .tagline{
+
+      color:#94a3b8;
+
+      margin-bottom:30px;
+    }
+
+    h2{
+
+      color:white;
+
+      margin-bottom:25px;
+    }
+
+    .two-col{
+
+      display:grid;
+
+      grid-template-columns:1fr 1fr;
+
+      gap:16px;
+    }
+
+    .field{
+
+      display:flex;
+
+      flex-direction:column;
+
+      margin-bottom:18px;
+    }
+
+    .field span{
+
+      color:#cbd5e1;
+
+      margin-bottom:8px;
+
+      font-size:14px;
+    }
+
+    .field input{
+
+      height:55px;
+
+      border-radius:14px;
+
+      border:1px solid rgba(255,255,255,.08);
+
+      background:#020b1f;
+
+      padding:0 16px;
+
+      color:white;
+
+      font-size:15px;
+
+      outline:none;
+    }
+
+    .field input:focus{
+
+      border-color:#ff3b3b;
+    }
+
+    .otp-btn,
+    .btn-primary{
+
+      width:100%;
+
+      height:55px;
+
+      border:none;
+
+      border-radius:14px;
+
+      cursor:pointer;
+
+      color:white;
+
+      font-size:17px;
+
+      font-weight:700;
+
+      background:
+      linear-gradient(
+        135deg,
+        #ff4d4d,
+        #ff1f1f
+      );
+
+      margin-top:10px;
+
+      transition:.3s;
+    }
+
+    .otp-btn:hover,
+    .btn-primary:hover{
+
+      transform:translateY(-2px);
+
+      box-shadow:
+      0 0 20px rgba(255,0,0,.35);
+    }
+
+    #otp-section{
+      display:none;
+    }
+
+    #recaptcha-container{
+      margin-top:18px;
+      margin-bottom:18px;
+    }
+
+    .success-text{
+
+      color:#4ade80;
+
+      margin-top:12px;
+
+      font-size:14px;
+    }
+
+    .auth-links{
+
+      margin-top:20px;
+
+      text-align:center;
+    }
+
+    .auth-links a{
+
+      color:#cbd5e1;
+
+      text-decoration:none;
+
+      font-size:14px;
+    }
+
+    .auth-links a:hover{
+      color:#ff4d4d;
+    }
+
+    .dot{
+      color:#64748b;
+      margin:0 10px;
+    }
+
+    @media(max-width:700px){
+
+      .two-col{
+        grid-template-columns:1fr;
+      }
+
+      .auth-card{
+        padding:28px;
+      }
+
+      .logo{
+        font-size:40px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="auth-wrap">
+
+    <div class="logo">
+      Blood<span>Link</span>
+    </div>
+
+    <p class="tagline">
+      Linking Blood to Life
+    </p>
+
+    <form
+      id="register-form"
+      class="auth-card"
+      method="POST"
+      action="/register"
+    >
+
+      <h2>
+        Create your account
+      </h2>
+
+     <div class="two-col">
+
+  <label class="field">
+    <span>Full Name</span>
+    <input
+      type="text"
+      name="name"
+      id="name"
+      placeholder="Enter full name"
+      required
+    />
+  </label>
+
+  <label class="field">
+    <span>Phone Number</span>
+    <input
+      type="text"
+      name="phone"
+      id="phone"
+      placeholder="9876543210"
+      required
+    />
+  </label>
+
+</div>
+
+<div class="two-col">
+
+  <label class="field">
+    <span>Email Address</span>
+    <input
+      type="email"
+      name="email"
+      id="email"
+      placeholder="Enter email address"
+      required
+    />
+  </label>
+
+  <label class="field">
+    <span>Blood Group</span>
+    <input
+      type="text"
+      name="blood_group"
+      placeholder="A+, O-, AB+"
+      required
+    />
+  </label>
+
+</div>
+      <label class="field">
+
+        <span>
+          Password
+        </span>
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Create password"
+          required
+        />
+
+      </label>
+
+      <label class="field">
+
+        <span>
+          Confirm Password
+        </span>
+
+        <input
+          type="password"
+          name="confirm_password"
+          placeholder="Confirm password"
+          required
+        />
+
+      </label>
+      <div class="two-col">
+
+        <label class="field">
+
+          <span>
+            City
+          </span>
+
+          <input
+            type="text"
+            name="city"
+            placeholder="Enter city"
+            required
+          />
+
+        </label>
+
+        <label class="field">
+
+          <span>
+            Pincode
+          </span>
+
+          <input
+            type="text"
+            name="pincode"
+            placeholder="Enter pincode"
+            required
+          />
+
+        </label>
+
+      </div>
+<button
+  type="submit"
+  id="register-btn"
+  class="btn-primary"
+>
+  Create Account
+</button>
+      <div class="auth-links">
+
+        <a href="/">
+          Back to Home
+        </a>
+
+        <span class="dot">
+          •
+        </span>
+
+        <a href="/login">
+          Already have an account?
+        </a>
+
+      </div>
+
+    </form>
+
+  </div>
+</body>
+</html>

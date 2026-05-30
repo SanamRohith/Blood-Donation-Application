@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Blood Requests
+    </title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <div class="header">
+
+        <h1 data-translate="emergency_requests">
+            Emergency Blood Requests
+        </h1>
+
+        <div class="header-buttons">
+
+            <button
+                class="back-btn"
+                onclick="window.location.href='/request_history'"
+                data-translate="history"
+            >
+                History
+            </button>
+
+            <button
+                class="back-btn"
+                onclick="window.location.href='/dashboard'"
+                data-translate="home"
+            >
+                ← Home
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <input
+            type="text"
+            id="patient_name"
+            placeholder="Patient Name"
+            data-placeholder="patient_name"
+            oninput="
+                this.value=this.value.replace(/[^a-zA-Z ]/g,'')
+            "
+        >
+
+        <select id="blood_group">
+
+            <option
+                value=""
+                data-translate="select_blood_group"
+            >
+                Select Blood Group
+            </option>
+
+            <option>A+</option>
+            <option>A-</option>
+            <option>B+</option>
+            <option>B-</option>
+            <option>AB+</option>
+            <option>AB-</option>
+            <option>O+</option>
+            <option>O-</option>
+
+        </select>
+
+        <input
+            type="number"
+            id="units"
+            placeholder="Units Required"
+            data-placeholder="units_required"
+            min="1"
+        >
+
+        <input
+            type="text"
+            id="hospital"
+            placeholder="Hospital Name"
+            data-placeholder="hospital_name"
+        >
+
+        <input
+            type="text"
+            id="city"
+            placeholder="City"
+            data-placeholder="city"
+        >
+
+        <input
+            type="text"
+            id="pincode"
+            placeholder="Pincode"
+            maxlength="6"
+        >
+
+        <input
+            type="tel"
+            id="phone"
+            placeholder="Contact Phone"
+            data-placeholder="contact_phone"
+            maxlength="10"
+        >
+
+        <button
+            class="btn btn-primary"
+            onclick="createRequest()"
+            data-translate="create_request"
+        >
+            Create Request
+        </button>
+
+    </div>
+
+    <div id="requests"></div>
+
+<script src="{{ url_for('static', filename='translations.js') }}"></script>
+
+<script>
+
+applyTranslations();
+
+async function loadRequests(){
+
+    const res = await fetch(
+        "/api/get_requests"
+    );
+
+    const data = await res.json();
+
+    const container =
+        document.getElementById("requests");
+
+    container.innerHTML = "";
+
+    if(
+        !data.requests ||
+        data.requests.length === 0
+    ){
+
+        container.innerHTML = `
+            <div class="card">
+                <h2>${t("no_requests")}</h2>
+            </div>
+        `;
+
+        return;
+    }
+
+    data.requests.forEach(r => {
+
+        let statusClass = "pending";
+
+        if(r.status === "resolved"){
+            statusClass = "resolved";
+        }
+
+        if(r.status === "expired"){
+            statusClass = "expired";
+        }
+
+        let resolveButton = "";
+
+        if(
+            r.is_owner &&
+            r.status === "pending"
+        ){
+
+            resolveButton = `
+                <button
+                    class="btn btn-primary"
+                    onclick="resolveRequest('${r.id}')"
+                >
+                    ${t("resolve_request")}
+                </button>
+            `;
+        }
+
+        container.innerHTML += `
+
+        <div class="card request-card">
+
+            <h2>${r.name || "Unknown"}</h2>
+
+            <p>
+                <b>${t("blood_group")}:</b>
+                ${r.blood_group}
+            </p>
+
+            <p>
+                <b>${t("units")}:</b>
+                ${r.units}
+            </p>
+
+            <p>
+                <b>${t("hospital")}:</b>
+                ${r.hospital}
+            </p>
+
+            <p>
+                <b>${t("city")}:</b>
+                ${r.city}
+            </p>
+
+            <p>
+                <b>Pincode:</b>
+                ${r.pincode || "-"}
+            </p>
+
+            <p>
+                <b>${t("phone")}:</b>
+                ${r.phone}
+            </p>
+
+            <p>
+
+                <b>${t("status")}:</b>
+
+                <span class="status ${statusClass}">
+                    ${r.status}
+                </span>
+
+            </p>
+
+            <p>
+
+                <b>${t("created")}:</b>
+
+                ${
+                    r.created_at
+                    ? new Date(r.created_at)
+                        .toLocaleString()
+                    : "-"
+                }
+
+            </p>
+
+            ${resolveButton}
+
+        </div>
+
+        `;
+    });
+}
+
+async function createRequest(){
+
+    const patientName =
+        document.getElementById(
+            "patient_name"
+        ).value.trim();
+
+    const bloodGroup =
+        document.getElementById(
+            "blood_group"
+        ).value.trim();
+
+    const units =
+        document.getElementById(
+            "units"
+        ).value.trim();
+
+    const hospital =
+        document.getElementById(
+            "hospital"
+        ).value.trim();
+
+    const city =
+        document.getElementById(
+            "city"
+        ).value.trim();
+
+    const pincode =
+        document.getElementById(
+            "pincode"
+        ).value.trim();
+
+    const phone =
+        document.getElementById(
+            "phone"
+        ).value.trim();
+
+    if(
+        !patientName ||
+        !bloodGroup ||
+        !units ||
+        !hospital ||
+        !city ||
+        !pincode ||
+        !phone
+    ){
+
+        alert(
+            t("fill_all_fields")
+        );
+
+        return;
+    }
+
+    if(
+        !phone.match(/^[0-9]{10}$/)
+    ){
+
+        alert(
+            t("phone_validation")
+        );
+
+        return;
+    }
+
+    if(
+        !pincode.match(/^[0-9]{6}$/)
+    ){
+
+        alert(
+            "Enter valid pincode"
+        );
+
+        return;
+    }
+
+    const payload = {
+
+        name:
+            patientName,
+
+        blood_group:
+            bloodGroup,
+
+        units:
+            units,
+
+        hospital:
+            hospital,
+
+        city:
+            city,
+
+        pincode:
+            pincode,
+
+        phone:
+            phone
+    };
+
+    try{
+
+        const res = await fetch(
+            "/api/create_request",
+            {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:JSON.stringify(payload)
+            }
+        );
+
+        const data = await res.json();
+
+        if(data.success){
+
+            alert(
+                data.message ||
+                t("request_created")
+            );
+
+            location.reload();
+
+        }else{
+
+            alert(
+                data.message ||
+                t("failed")
+            );
+        }
+
+    }catch(err){
+
+        alert(
+            t("server_error")
+        );
+    }
+}
+
+async function resolveRequest(id){
+
+    const donorName = prompt(
+        t("enter_donor_name")
+    );
+
+    if(
+        !donorName ||
+        donorName.trim() === ""
+    ){
+        return;
+    }
+
+    const res = await fetch(
+        `/api/resolve_request/${id}`,
+        {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:JSON.stringify({
+
+                resolved_by:
+                    donorName.trim()
+
+            })
+        }
+    );
+
+    const data = await res.json();
+
+    if(data.success){
+
+        alert(
+            t("resolved_success")
+        );
+
+        loadRequests();
+
+    }else{
+
+        alert(
+            data.message ||
+            t("failed_resolve")
+        );
+    }
+}
+
+loadRequests();
+
+</script>
+
+</body>
+</html>
